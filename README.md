@@ -8,13 +8,14 @@ The demo server (pop3_server.js) currently sends the same message with every req
 Clients
 -------
 
-Run *pop3_server.js* and add an POP3 account to your e-mail client pointing to the node.js server. With the demo script usernames doesn't matter, any name goes, but the password needs to be 12345
+Run *pop3_server.js* and add a POP3 account to your e-mail client pointing to the node.js server. With the demo script usernames don't matter, any name goes, but the password needs to be 12345
 
 For example, if you run *pop3_server.js* in *localhost* then the incoming settings should be something like:
 
     protocol: pop3
     server: localhost
+    port: 110
     username: anything_goes
     password: 12345
     
-NB! Some clients (iPhone) require valid SMTP server in order to add a new account.
+NB! Some clients (iPhone) require valid SMTP server in order to add a new account. You can use any valid SMTP server.
