@@ -19,3 +19,8 @@ For example, if you run *pop3_server.js* in *localhost* then the incoming settin
     password: 12345
     
 NB! Some clients (iPhone) require valid SMTP server in order to add a new account. You can use any valid SMTP server.
+
+License
+-------
+
+MIT. If you make any impromevents to the POP3 server code, then it would be nice to push the changes to here also.
