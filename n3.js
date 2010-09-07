@@ -222,6 +222,8 @@ var N3 = {
 }
 
 N3.POP3Server.prototype.destroy = function(){
+    if(this.timer)clearTimeout(this.timer);
+    this.timer = null;
     this.socket = null;
     this.state = null;
     this.authCallback = null;
@@ -275,7 +277,7 @@ N3.POP3Server.prototype.onEnd = function(data){
 }
 
 N3.POP3Server.prototype.onCommand = function(request){
-    var cmd = request.match(/^[A-Z]+/),
+    var cmd = request.match(/^[A-Za-z]+/),
         params = cmd && request.substr(cmd[0].length+1);
 
     this.updateTimeout();
@@ -290,8 +292,8 @@ N3.POP3Server.prototype.onCommand = function(request){
     if(!cmd)
         return this.response("-ERR");
 
-    if(typeof this["cmd"+cmd[0]]=="function")
-        return this["cmd"+cmd[0]](params && params.trim());
+    if(typeof this["cmd"+cmd[0].toUpperCase()]=="function")
+        return this["cmd"+cmd[0].toUpperCase()](params && params.trim());
     
     return this.response("-ERR");
 }
