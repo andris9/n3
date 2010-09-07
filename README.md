@@ -30,4 +30,4 @@ MIT. If you make any impromevents to the POP3 server code, then it would be nice
 NB
 --
 
-Any help getting **STLS** running would be greatly appreciated! Currenlty I have no clue how to achieve this.
+Any help getting **STLS** running would be greatly appreciated! Currenlty I have no clue how to achieve this. Shouldn't be very hard, I just don't know much about secure connections.
