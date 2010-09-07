@@ -118,7 +118,7 @@ var N3 = {
 
     COUNTER: 0,
     
-    capabilities: ["APOP", "USER", "UIDL"],
+    capabilities: ["SASL CRAM-MD5", "APOP", "USER", "UIDL"],
     
     startServer: function(port, auth, MsgStore){
         net.createServer(this.createInstance.bind(this, auth, MsgStore)).listen(port);
@@ -271,6 +271,13 @@ N3.POP3Server.prototype.onCommand = function(request){
 
     this.updateTimeout();
 
+    if(!cmd && this.waitState){
+    	cmd = this.waitState;
+    	params = request.trim();
+    }
+    
+    this.waitState = false;
+    
     if(!cmd)
         return this.response("-ERR");
 
@@ -302,10 +309,49 @@ N3.POP3Server.prototype.cmdQUIT = function(){
 
 // AUTHENTICATION commands
 
-// ???
-N3.POP3Server.prototype.cmdAUTH = function(params){
+// EXPERIMENTAL CRAM-MD5 SUPPORT - NOT TESTED, MIGHT NOT WORK
+N3.POP3Server.prototype.cmdAUTH = function(auth){
     if(this.state!=N3.States.AUTHENTICATION) return this.response("-ERR Only allowed in authentication mode");
+    switch(auth){
+    	case "CRAM-MD5": return this.authCRAM_MD5();
+    }
     this.response("-ERR Not implemented yet");
+}
+
+// CRAM MD5 step 1
+N3.POP3Server.prototype.authCRAM_MD5 = function(auth){
+	this.waitState = "CRAM_MD5";
+	this.response("+ "+base64("<"+this.UID+"@"+N3.server_name+">"));
+}
+
+//CRAM MD5 step 2
+N3.POP3Server.prototype.cmdCRAM_MD5 = function(hash){
+	var params = base64_decode(hash).split(" "), user, challenge,
+		salt = "<"+this.UID+"@"+N3.server_name+">";
+	console.log("Unencoded: "+params);
+	user = params && params[0];
+	challenge = params && params[1];
+	if(!user || !challenge)
+		return this.response("-ERR Invalid authentication");
+	
+	if(typeof this.authCallback=="function"){
+        if(!this.authCallback(user, function(pass){
+        	var hmac = crypto.createHmac("md5", pass), digest;
+        	hmac.update(salt);
+        	digest = hmac.digest("hex");
+        	return digest==challenge;
+        })){
+            return this.response("-ERR Invalid login");
+        }
+    }
+    
+    this.user = user;
+    
+    if(this.afterLogin()){
+        this.state = N3.States.TRANSACTION;
+        return this.response("+OK User accepted");
+    }else
+        return this.response("-ERR Error with initializing");
 }
 
 // APOP username hash - Performs an APOP authentication
@@ -467,6 +513,12 @@ function md5(str){
 function base64(str){
     var resp = new Buffer(str, "utf-8");
     return resp.toString("base64");
+}
+
+//Decodes a Base64 string
+function base64_decode(str){
+    var resp = new Buffer(str, "base64");
+    return resp.toString("ascii");
 }
 
 // EXPORT
