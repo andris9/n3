@@ -272,8 +272,8 @@ N3.POP3Server.prototype.onCommand = function(request){
     this.updateTimeout();
 
     if(!cmd && this.waitState){
-    	cmd = this.waitState;
-    	params = request.trim();
+        cmd = this.waitState;
+        params = request.trim();
     }
     
     this.waitState = false;
@@ -313,33 +313,33 @@ N3.POP3Server.prototype.cmdQUIT = function(){
 N3.POP3Server.prototype.cmdAUTH = function(auth){
     if(this.state!=N3.States.AUTHENTICATION) return this.response("-ERR Only allowed in authentication mode");
     switch(auth){
-    	case "CRAM-MD5": return this.authCRAM_MD5();
+        case "CRAM-MD5": return this.authCRAM_MD5();
     }
     this.response("-ERR Not implemented yet");
 }
 
 // CRAM MD5 step 1
 N3.POP3Server.prototype.authCRAM_MD5 = function(auth){
-	this.waitState = "CRAM_MD5";
-	this.response("+ "+base64("<"+this.UID+"@"+N3.server_name+">"));
+    this.waitState = "CRAM_MD5";
+    this.response("+ "+base64("<"+this.UID+"@"+N3.server_name+">"));
 }
 
 //CRAM MD5 step 2
 N3.POP3Server.prototype.cmdCRAM_MD5 = function(hash){
-	var params = base64_decode(hash).split(" "), user, challenge,
-		salt = "<"+this.UID+"@"+N3.server_name+">";
-	console.log("Unencoded: "+params);
-	user = params && params[0];
-	challenge = params && params[1];
-	if(!user || !challenge)
-		return this.response("-ERR Invalid authentication");
-	
-	if(typeof this.authCallback=="function"){
+    var params = base64_decode(hash).split(" "), user, challenge,
+        salt = "<"+this.UID+"@"+N3.server_name+">";
+    console.log("Unencoded: "+params);
+    user = params && params[0];
+    challenge = params && params[1];
+    if(!user || !challenge)
+        return this.response("-ERR Invalid authentication");
+    
+    if(typeof this.authCallback=="function"){
         if(!this.authCallback(user, function(pass){
-        	var hmac = crypto.createHmac("md5", pass), digest;
-        	hmac.update(salt);
-        	digest = hmac.digest("hex");
-        	return digest==challenge;
+            var hmac = crypto.createHmac("md5", pass), digest;
+            hmac.update(salt);
+            digest = hmac.digest("hex");
+            return digest==challenge;
         })){
             return this.response("-ERR Invalid login");
         }
