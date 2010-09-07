@@ -45,12 +45,13 @@ MessageStore.prototype.stat = function(){
 MessageStore.prototype.list = function(msg){
     var result = [];
     if(msg){
-        if(isNaN(msg) || msg<1 || msg>this.messages.length || this.messages[msg-1].deleteFlag)
+        if(isNaN(msg) || msg<1 || msg>this.messages.length || 
+                                this.messages[msg-1].deleteFlag)
             return false;
         return msg+" "+this.messages[msg-1].size;
     }
     for(var i=0, len = this.messages.length;i<len;i++){
-        if(!this.messages.deleteFlag)
+        if(!this.messages[i].deleteFlag)
             result.push((i+1)+" "+this.messages[i].size)
     }
     return result;
@@ -59,25 +60,28 @@ MessageStore.prototype.list = function(msg){
 MessageStore.prototype.uidl = function(msg){
     var result = [];
     if(msg){
-        if(isNaN(msg) || msg<1 || msg>this.messages.length || this.messages[msg-1].deleteFlag)
+        if(isNaN(msg) || msg<1 || msg>this.messages.length || 
+                                this.messages[msg-1].deleteFlag)
             return false;
         return msg+" "+this.messages[msg-1].uid;
     }
     for(var i=0, len = this.messages.length;i<len;i++){
-        if(!this.messages.deleteFlag)
+        if(!this.messages[i].deleteFlag)
             result.push((i+1)+" "+this.messages[i].uid)
     }
     return result;
 }
 
 MessageStore.prototype.retr = function(msg){
-    if(!msg || isNaN(msg) || msg<1 || msg>this.messages.length || this.messages[msg-1].deleteFlag)
+    if(!msg || isNaN(msg) || msg<1 || msg>this.messages.length || 
+                                this.messages[msg-1].deleteFlag)
         return false;
     return N3.buildMimeMail(this.messages[msg-1]);
 }
 
 MessageStore.prototype.dele = function(msg){
-    if(!msg || isNaN(msg) || msg<1 || msg>this.messages.length || this.messages[msg-1].deleteFlag)
+    if(!msg || isNaN(msg) || msg<1 || msg>this.messages.length || 
+                                this.messages[msg-1].deleteFlag)
         return false;
     this.messages[msg-1].deleteFlag = true;
     this.length--;
@@ -90,7 +94,7 @@ MessageStore.prototype.rset = function(){
         if(this.messages[i].deleteFlag){
             this.messages[i].deleteFlag = false;
             this.length++;
-            this.size += this.messages[msg-1].size;
+            this.size += this.messages[i].size;
         }
     }
 }
@@ -118,10 +122,15 @@ var N3 = {
 
     COUNTER: 0,
     
-    capabilities: ["SASL CRAM-MD5", "APOP", "USER", "UIDL"],
+    capabilities: {
+        1: ["UIDL", "USER", "SASL CRAM-MD5"],
+        2: ["UIDL", "EXPIRE NEVER", "LOGIN-DELAY 0", "IMPLEMENTATION N3 node.js POP3 server"],
+        3: []
+    },
     
     startServer: function(port, auth, MsgStore){
-        net.createServer(this.createInstance.bind(this, auth, MsgStore)).listen(port);
+        net.createServer(this.createInstance.bind(
+                    this, auth, MsgStore)).listen(port);
         console.log("Server running on port "+port)
     },
     
@@ -138,7 +147,7 @@ var N3 = {
         this.MsgStore = MsgStore;
         
         console.log("New connection from "+socket.remoteAddress);
-        this.response("+OK POP3 server ready <"+this.UID+"@"+N3.server_name+">");
+        this.response("+OK POP3 Server ready <"+this.UID+"@"+N3.server_name+">");
         
         socket.on("data", this.onData.bind(this));
         socket.on("end", this.onEnd.bind(this));
@@ -219,7 +228,7 @@ N3.POP3Server.prototype.destroy = function(){
     this.MsgStore = null;
 }
 
-// kill client after 15 sec on inactivity
+// kill client after 10 min on inactivity
 N3.POP3Server.prototype.updateTimeout = function(){
     if(this.timer)clearTimeout(this.timer);
     this.timer = setTimeout((function(){
@@ -230,7 +239,7 @@ N3.POP3Server.prototype.updateTimeout = function(){
         console.log("Connection closed for client inactivity\n\n");
         this.socket.end();
         this.destroy();
-    }).bind(this),15*1000); 
+    }).bind(this),10*60*1000); 
 }
 
 N3.POP3Server.prototype.response = function(message){
@@ -292,8 +301,8 @@ N3.POP3Server.prototype.onCommand = function(request){
 // CAPA - Reveals server capabilities to the client
 N3.POP3Server.prototype.cmdCAPA = function(){
     this.response("+OK Capability list follows");
-    for(var i=0;i<N3.capabilities.length; i++){
-        this.response(N3.capabilities[i]);
+    for(var i=0;i<N3.capabilities[this.state].length; i++){
+        this.response(N3.capabilities[this.state][i]);
     }
     this.response(".");
 }
@@ -304,7 +313,7 @@ N3.POP3Server.prototype.cmdQUIT = function(){
         this.state = N3.States.UPDATE;
         this.messages.removeDeleted();
     }
-    this.response("+OK n3 POP3 server signing off");
+    this.response("+OK N3 POP3 Server signing off");
 }
 
 // AUTHENTICATION commands
@@ -349,7 +358,7 @@ N3.POP3Server.prototype.cmdCRAM_MD5 = function(hash){
     
     if(this.afterLogin()){
         this.state = N3.States.TRANSACTION;
-        return this.response("+OK User accepted");
+        return this.response("+OK You are now logged in");
     }else
         return this.response("-ERR Error with initializing");
 }
@@ -376,7 +385,7 @@ N3.POP3Server.prototype.cmdAPOP = function(params){
     
     if(this.afterLogin()){
         this.state = N3.States.TRANSACTION;
-        return this.response("+OK User accepted");
+        return this.response("+OK You are now logged in");
     }else
         return this.response("-ERR Error with initializing");
 }
@@ -387,18 +396,19 @@ N3.POP3Server.prototype.cmdUSER = function(username){
 
     this.user = username.trim();
     if(!this.user)
-        return this.response("-ERR User not set");
+        return this.response("-ERR User not set, try: USER <username>");
     return this.response("+OK User accepted");
 }
 
 // PASS - Performs basic authentication, runs after USER
 N3.POP3Server.prototype.cmdPASS = function(password){
     if(this.state!=N3.States.AUTHENTICATION) return this.response("-ERR Only allowed in authentication mode");
-    if(!this.user) return this.response("-ERR PASS is allowed only after USER");
+    if(!this.user) return this.response("-ERR USER not yet set");
     
     if(typeof this.authCallback=="function"){
+        console.log("authenticating")
         if(!this.authCallback(this.user, function(pass){
-            return pass==pass;
+            return pass==password;
         })){
             delete this.user;
             return this.response("-ERR Invalid login");
@@ -407,7 +417,7 @@ N3.POP3Server.prototype.cmdPASS = function(password){
     
     if(this.afterLogin()){
         this.state = N3.States.TRANSACTION;
-        return this.response("+OK Pass accepted");
+        return this.response("+OK You are now logged in");
     }else
         return this.response("-ERR Error with initializing");
 }
