@@ -26,3 +26,8 @@ License
 -------
 
 MIT. If you make any impromevents to the POP3 server code, then it would be nice to push the changes to here also.
+
+NB
+--
+
+Any help getting **STLS** running would be greatly appreciated! Currenlty I have no clue how to achieve this.
