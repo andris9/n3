@@ -163,6 +163,8 @@ var N3 = {
                 }
             }else{
                 lf = line.lastIndexOf(" ");
+                if(lf<=0)
+                    lf = line.lastIndexOf("\t");
                 if(line.length>=maxLength && lf>0){
                     response += line.substr(0,lf)+"\r\n"+line.substr(lf);
                 }else
