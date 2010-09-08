@@ -153,6 +153,26 @@ var N3 = {
         socket.on("end", this.onEnd.bind(this));
     },
     
+    foldLines: function(str, anywhere){
+        var maxLength = 78, line=false, curpos=0, response="", lf;
+        while(line = str.substr(curpos, maxLength)){
+            if(!!anywhere){
+                response += line;
+                if(curpos+maxLength<str.length){
+                    response+="\r\n";
+                }
+            }else{
+                lf = line.lastIndexOf(" ");
+                if(line.length>=maxLength && lf>0){
+                    response += line.substr(0,lf)+"\r\n"+line.substr(lf);
+                }else
+                    response+=line;
+            }
+            curpos += line.length;
+        }
+        return response;
+    },
+    
     buildMimeMail: function(options){
         options = options || {};
         
@@ -176,15 +196,15 @@ var N3 = {
         
         date = (options.date?new Date(options.date):new Date()).toGMTString();
         
-        mime_boundary = '----bd_n3-'+(+new Date())+'----';
+        mime_boundary = '----bd_n3-lunchhour'+(+new Date())+'----';
         
         // header
-        header = 'From: '+from+"\r\n"+
-            'To: '+to+"\r\n"+
-            'Date: '+date+"\r\n"+
-            'Subject: '+subject+"\r\n"+
-            'MIME-Version: 1.0'+"\r\n"+
-            'Content-Type: multipart/alternative; boundary="'+mime_boundary+'"'+"\r\n"+
+        header = N3.foldLines('From: '+from)+"\r\n"+
+            N3.foldLines('To: '+to)+"\r\n"+
+            N3.foldLines('Date: '+date)+"\r\n"+
+            N3.foldLines('Subject: '+subject)+"\r\n"+
+            N3.foldLines('MIME-Version: 1.0')+"\r\n"+
+            N3.foldLines('Content-Type: multipart/alternative; boundary="'+mime_boundary+'"')+"\r\n"+
             "\r\n";
     
         attachments = [];
@@ -193,7 +213,7 @@ var N3 = {
                     'Content-Type: text/plain; charset="utf-8"'+"\r\n"+
                     'Content-Transfer-Encoding: base64'+"\r\n"+
                     "\r\n"+
-                    base64(options.text)
+                    N3.foldLines(base64(options.text), true)
             );
         }
     
@@ -202,7 +222,7 @@ var N3 = {
                     'Content-Type: text/html; charset="utf-8"'+"\r\n"+
                     'Content-Transfer-Encoding: base64'+"\r\n"+
                     "\r\n"+
-                    base64(options.html)
+                    N3.foldLines(base64(options.html), true)
             );
         }
         
