@@ -179,43 +179,43 @@ var N3 = {
         mime_boundary = '----bd_n3-'+(+new Date())+'----';
         
         // header
-        header = 'From: '+from+"\n"+
-            'To: '+to+"\n"+
-            'Date: '+date+"\n"+
-            'Subject: '+subject+"\n"+
-            'MIME-Version: 1.0'+"\n"+
-            'Content-Type: multipart/alternative; boundary="'+mime_boundary+'"'+"\n"+
-            "\n";
+        header = 'From: '+from+"\r\n"+
+            'To: '+to+"\r\n"+
+            'Date: '+date+"\r\n"+
+            'Subject: '+subject+"\r\n"+
+            'MIME-Version: 1.0'+"\r\n"+
+            'Content-Type: multipart/alternative; boundary="'+mime_boundary+'"'+"\r\n"+
+            "\r\n";
     
         attachments = [];
         if(options.text){
             attachments.push(
-                    'Content-Type: text/plain; charset="utf-8"'+"\n"+
-                    'Content-Transfer-Encoding: base64'+"\n"+
-                    "\n"+
+                    'Content-Type: text/plain; charset="utf-8"'+"\r\n"+
+                    'Content-Transfer-Encoding: base64'+"\r\n"+
+                    "\r\n"+
                     base64(options.text)
             );
         }
     
         if(options.html){
             attachments.push(
-                    'Content-Type: text/html; charset="utf-8"'+"\n"+
-                    'Content-Transfer-Encoding: base64'+"\n"+
-                    "\n"+
+                    'Content-Type: text/html; charset="utf-8"'+"\r\n"+
+                    'Content-Transfer-Encoding: base64'+"\r\n"+
+                    "\r\n"+
                     base64(options.html)
             );
         }
         
         if(!attachments.length){
             attachments.push(
-                    'Content-Type: text/plain; charset="utf-8"'+"\n"+
-                    'Content-Transfer-Encoding: base64'+"\n"+
-                    "\n"+
+                    'Content-Type: text/plain; charset="utf-8"'+"\r\n"+
+                    'Content-Transfer-Encoding: base64'+"\r\n"+
+                    "\r\n"+
                     base64("(empty message)")
             );
         }
     
-        body = '--'+mime_boundary+"\n"+ attachments.join("\n"+'--'+mime_boundary+"\n")+"\n"+'--'+mime_boundary+"--\n\n";
+        body = '--'+mime_boundary+"\r\n"+ attachments.join("\r\n"+'--'+mime_boundary+"\r\n")+"\r\n"+'--'+mime_boundary+"--\r\n\r\n";
         
         return header + body;
     }
