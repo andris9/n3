@@ -155,7 +155,7 @@ this.encodeQuotedPrintable = function(str, mimeWord, charset){
         var lines = str.split(/\r?\n/);
         for(var i=0, len = lines.length; i<len; i++){
             if(lines[i].length>76){
-                lines[i] = lineEdges(this.foldLine(lines[i],76, false, true)).replace(/\r\n/g,"=\r\n");
+                lines[i] = this.foldLine(lines[i],76, false, true).replace(/\r\n/g,"=\r\n");
             }
         }
         str = lines.join("\r\n");
