@@ -1,7 +1,9 @@
 
+// see http://github.com/bnoordhuis/node-iconv for more info
+var Iconv = require("../node-iconv/build/default/iconv").Iconv;
+
 /* mime related functions - encoding/decoding etc*/
-/* TODO: Add real character set support. Currently only UTF-8 or to some
- *       extent Latin1 can be used. Update encode/decode functions. */
+/* TODO: Only UTF-8 and Latin1 are allowed with encodeQuotedPrintable */
 
 /**
  * mime.foldLine(str, maxLength, foldAnywhere) -> String
@@ -76,13 +78,13 @@ this.foldLine = function(str, maxLength, foldAnywhere, afterSpace){
  **/
 this.encodeMimeWord = function(str, encoding, charset){
     charset = charset || "UTF-8";
-    encoding = encoding || "B";
+    encoding = encoding && encoding.toUpperCase() || "B";
     
-    if(encoding.toUpperCase()=="Q"){
+    if(encoding=="Q"){
         str = this.encodeQuotedPrintable(str, true, charset);
     }
     
-    if(encoding.toUpperCase()=="B"){
+    if(encoding=="B"){
         str = this.encodeBase64(str);
     }
     
@@ -122,7 +124,8 @@ this.decodeMimeWord = function(str){
  * mime.encodeQuotedPrintable(str, mimeWord, charset) -> String
  * - str (String): String to be encoded into Quoted-printable
  * - mimeWord (Boolean): Use mime-word mode (defaults to false)
- * - charset (String): Charset to be used, defaults to UTF-8
+ * - charset (String): Destination charset, defaults to UTF-8
+ *   TODO: Currently only allowed charsets: UTF-8, LATIN1
  * 
  * Encodes a string into Quoted-printable format. 
  **/
@@ -176,7 +179,8 @@ this.encodeQuotedPrintable = function(str, mimeWord, charset){
  * Decodes a string from Quoted-printable format. 
  **/
 this.decodeQuotedPrintable = function(str, mimeWord, charset){
-    charset = charset || "UTF-8";
+    charset = charset && charset.toUpperCase() || "UTF-8";
+
     if(mimeWord){
         str = str.replace(/_/g," ");
     }else{
@@ -184,34 +188,51 @@ this.decodeQuotedPrintable = function(str, mimeWord, charset){
     }
     if(charset == "UTF-8")
         str = decodeURIComponent(str.replace(/=/g,"%"));
-    else
-        str = unescape(str.replace(/=/g,"%"));
+    else{
+        str = str.replace(/=/g,"%");
+        if(charset=="ISO-8859-1" || charset=="LATIN1")
+            str = unescape(str);
+        else{
+            str = decodeBytestreamUrlencoding(str);
+            str = fromCharset(charset, str);
+        }
+    }
     return str;
 }
 
 /**
  * mime.encodeBase64(str) -> String
  * - str (String): String to be encoded into Base64
- * - charset (String): Charset to be used, defaults to UTF-8
+ * - charset (String): Destination charset, defaults to UTF-8
  * 
  * Encodes a string into Base64 format. Base64 is mime-word safe. 
  **/
 this.encodeBase64 = function(str, charset){
-    if(charset && charset.toUpperCase()!="UTF-8")charset="ascii";
-    return new Buffer(str, charset || "UTF-8").toString("base64");
+    var buffer;
+    if(charset && charset.toUpperCase()!="UTF-8")
+        buffer = toCharset(charset, str);
+    else
+        buffer = new Buffer(str, "UTF-8");
+    return buffer.toString("base64");
 }
 
 /**
  * mime.decodeBase64(str) -> String
  * - str (String): String to be decoded from Base64
- * - charset (String): Charset to be used, defaults to UTF-8
+ * - charset (String): Source charset, defaults to UTF-8
  * 
  * Decodes a string from Base64 format. Base64 is mime-word safe.
- * NB! If Latin1 is used, returns the string as an actual LATIN1! 
+ * NB! Always returns UTF-8 
  **/
 this.decodeBase64 = function(str, charset){
-    if(charset && charset.toUpperCase()!="UTF-8")charset="ascii";
-    return new Buffer(str, "base64").toString(charset || "UTF-8");
+    var buffer = new Buffer(str, "base64");
+    
+    if(charset && charset.toUpperCase()!="UTF-8"){
+        return fromCharset(charset, buffer);
+    }
+    
+    // defaults to utf-8
+    return buffer.toString("UTF-8");
 }
 
 
@@ -233,4 +254,56 @@ function lineEdges(str){
         return wsc.replace(/ /g,"=20").replace(/\t/g,"=09"); 
     });
     return str;
+}
+
+/**
+ * fromCharset(charset, buffer, keep_buffer) -> String | Buffer
+ * - charset (String): Source charset
+ * - buffer (Buffer): Buffer in <charset>
+ * - keep_buffer (Boolean): If true, return buffer, otherwise UTF-8 string
+ * 
+ * Converts a buffer in <charset> codepage into UTF-8 string
+ **/
+function fromCharset(charset, buffer, keep_buffer){
+    var iconv = new Iconv(charset,'UTF-8'),
+        buffer = iconv.convert(buffer);
+    return keep_buffer?buffer:buffer.toString("utf-8");
+}
+
+/**
+ * toCharset(charset, buffer) -> Buffer
+ * - charset (String): Source charset
+ * - buffer (Buffer): Buffer in UTF-8 or string
+ * 
+ * Converts a string or buffer to <charset> codepage
+ **/
+function toCharset(charset, buffer){
+    var iconv = new Iconv('UTF-8',charset);
+    return iconv.convert(buffer);
+}
+
+/**
+ * decodeBytestreamUrlencoding(encoded_string) -> Buffer
+ * - encoded_string (String): String in urlencode coding
+ * 
+ * Converts an urlencoded string into a bytestream buffer. If the used
+ * charset is known the resulting string can be converted to UTF-8 with
+ * [[fromCharset]]. 
+ * NB! For UTF-8 use decodeURIComponent and for Latin 1 decodeURL instead 
+ **/
+function decodeBytestreamUrlencoding(encoded_string){
+
+    var c, i, j=0, buffer_length = encoded_string.length - 
+                            (encoded_string.match(/%/g).length*2),
+        buffer = new Buffer(buffer_length);
+
+    for(var i=0; i<encoded_string.length; i++){
+        c = encoded_string.charCodeAt(i);
+        if(c=="37"){ // %
+            c = parseInt(encoded_string.substr(i+1,2), 16);
+            i+=2;
+        }
+        buffer[j++] = c;
+    }
+    return buffer;
 }
