@@ -235,7 +235,13 @@ this.decodeBase64 = function(str, charset){
     return buffer.toString("UTF-8");
 }
 
-
+/**
+ * mime.parseHeaders(headers) -> Array
+ * - headers (String): header section of the e-mail
+ * 
+ * Parses header lines into an array of objects (see [[parseHeaderLine]])
+ * FIXME: This should probably not be here but in "envelope" instead
+ **/
 this.parseHeaders = function(headers){
     var text, lines, line, i, name, value, cmd, header_lines = [];
     // unfold
