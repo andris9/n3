@@ -236,7 +236,78 @@ this.decodeBase64 = function(str, charset){
 }
 
 
+this.parseHeaders = function(headers){
+    var text, lines, line, i, name, value, cmd, header_lines = [];
+    // unfold
+    headers = headers.replace(/\r?\n([ \t])/gm," ");
+
+    // split lines
+    lines = headers.split(/\r?\n/);
+    for(i=0; i<lines.length;i++){
+        if(!lines[i]) // no more header lines
+            break;
+        cmd = lines[i].match(/[^\:]+/);
+        if(cmd && (cmd = cmd[0])){
+            name = cmd;
+            value = lines[i].substr(name.length+1);
+            header_lines.push(parseHeaderLine(name, value));
+        }
+    }
+    
+    return header_lines;
+}
+
 /* Helper functions */
+
+/**
+ * parseHeaderLine(name, value) -> Object
+ * - name (String): Name of the header line
+ * - value (String): Value of the header line
+ * 
+ * Parses header line into separate parts. Fore example
+ *     Content-type: text/plain; Charset = utf-8
+ * becomes
+ *     {
+ *       "name"  : "Content-type",
+ *       "value" : "text/plain",
+ *       "params": [
+ *         {
+ *           "name" : "Charset",
+ *           "value": "utf-8"
+ *         }
+ *       ]
+ *     }
+ **/
+function parseHeaderLine(name, value){
+    var header_line = {
+        name: name,
+        original: value.trim(),
+        value: "",
+        params: []
+    }, parts = value.split(/;/g), i, line, m, n, v;
+    
+    for(i=0; i<parts.length;i++){
+        line = parts[i].replace(/=\?([^\?]+)\?([^\?]+)\?([^\?]+)\?=/g, function(a){
+            return exports.decodeMimeWord(a);
+        }).trim();
+        if(line){
+            if(m = line.match(/^\w+s*=/)){
+                n = m[0].substr(0,m[0].length-1).trim();
+                v =  line.substr(m[0].length).trim();
+                if(i==0)
+                    header_line.value = {name:n, value:v};
+                else
+                    header_line.params.push({name:n, value:v});
+            }else{
+                if(i==0)
+                    header_line.value = {value:line};
+                else
+                    header_line.params.push({value:line});
+            }
+        }
+    }
+    return header_line;
+}
 
 /**
  * lineEdges(str) -> String
