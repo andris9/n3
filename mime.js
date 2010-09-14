@@ -4,6 +4,7 @@ var Iconv = require("../node-iconv/build/default/iconv").Iconv;
 
 /* mime related functions - encoding/decoding etc*/
 /* TODO: Only UTF-8 and Latin1 are allowed with encodeQuotedPrintable */
+/* TODO: Check if the input string even needs encoding                */
 
 /**
  * mime.foldLine(str, maxLength, foldAnywhere) -> String

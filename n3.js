@@ -314,6 +314,11 @@ for(var i=0, len=sasl_methods.length; i < len; i++){
 
 // APOP username hash - Performs an APOP authentication
 // http://www.faqs.org/rfcs/rfc1939.html #7
+
+// USAGE:
+//   CLIENT: APOP user MD5(salt+pass)
+//   SERVER: +OK You are now logged in
+
 N3.POP3Server.prototype.cmdAPOP = function(params){
     if(this.state!=N3.States.AUTHENTICATION) return this.response("-ERR Only allowed in authentication mode");
     
