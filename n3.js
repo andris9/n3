@@ -362,7 +362,6 @@ N3.POP3Server.prototype.cmdSTLS = function(){
 
 // AUTHENTICATION commands
 
-// EXPERIMENTAL CRAM-MD5 SUPPORT - NOT TESTED, MIGHT NOT WORK
 N3.POP3Server.prototype.cmdAUTH = function(auth){
     if(this.state!=N3.States.AUTHENTICATION) return this.response("-ERR Only allowed in authentication mode");
     switch(auth){
@@ -379,6 +378,7 @@ N3.POP3Server.prototype.authCRAM_MD5 = function(auth){
 
 //CRAM MD5 step 2
 N3.POP3Server.prototype.cmdCRAM_MD5 = function(hash){
+    if(this.state!=N3.States.AUTHENTICATION) return this.response("-ERR Only allowed in authentication mode");
     var params = base64_decode(hash).split(" "), user, challenge,
         salt = "<"+this.UID+"@"+N3.server_name+">";
     console.log("Unencoded: "+params);
