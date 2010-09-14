@@ -14,7 +14,7 @@ To use the server you need to create certificate files for STLS secure connectio
     openssl req -new -key privatekey.pem -out certrequest.csr
     openssl x509 -req -in certrequest.csr -signkey privatekey.pem -out certificate.pem
 
-And copy these files to ../cert/ (see [http://github.com/andris9/n3/blob/master/n3.js#L5-6](lines 5-6 of n3.js))
+And copy these files to ../cert/ (see [lines 5-6 of n3.js](http://github.com/andris9/n3/blob/master/n3.js#L5-6))
 
 Run *pop3_server.js* and add a POP3 account to your e-mail client pointing to the node.js server. With the demo script usernames don't matter, any name goes, but the password needs to be 12345
 
