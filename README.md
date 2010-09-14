@@ -39,7 +39,7 @@ For example, if you run *pop3_server.js* in *localhost* then the incoming settin
 
     protocol: pop3
     server: localhost
-    port: 110
+    port: 110 (or 995 for TLS)
     username: anything_goes
     password: 12345
     
