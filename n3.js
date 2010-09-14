@@ -12,7 +12,14 @@ var net = require('net'),
  * POP3 Server for Node.JS
  * Usage:
  * 
- *     N3.startServer(port, server_name, AuthStore, MessageStore, pkFilename, crtFilename, useTLS);
+ *     N3.startServer(port, server_name, AuthStore, MessageStore[, pkFilename][, crtFilename][, useTLS]);
+ *     - port (Number): Port nr to listen, 110 for unencrypted POP3 and 995 for TLS
+ *     - server_name (String): server domain name, ie. "node.ee"
+ *     - AuthStore (Function): Function to authenticate users, see pop3_server.js for example
+ *     - MessageStore (Constructor): See messagestore.js or pop3_server.js for example
+ *     - pkFilename (String): Path to Private Key for SARTTLS and TLS
+ *     - crtFilename (String): Path to server certificate for SARTTLS and TLS
+ *     - useTLS (Boolean): use only secure TLS connections
  * 
  **/
 var N3 = {
