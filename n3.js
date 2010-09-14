@@ -343,7 +343,7 @@ N3.POP3Server.prototype.cmdCAPA = function(){
     this.response(".");
 }
 
-// QUIT Closes the connection
+// QUIT - Closes the connection
 N3.POP3Server.prototype.cmdQUIT = function(){
     if(this.state==N3.States.TRANSACTION){
         this.state = N3.States.UPDATE;
@@ -352,7 +352,7 @@ N3.POP3Server.prototype.cmdQUIT = function(){
     this.response("+OK N3 POP3 Server signing off");
 }
 
-// ENTER SECURE TLS MODE
+// STLS - ENTER SECURE TLS MODE
 N3.POP3Server.prototype.cmdSTLS = function(){
     this.response("+OK Begin TLS negotiation now");
     this.socket.setSecure(credentials);
@@ -362,6 +362,8 @@ N3.POP3Server.prototype.cmdSTLS = function(){
 
 // AUTHENTICATION commands
 
+
+// AUTH auth_engine - initiates an authentication request
 N3.POP3Server.prototype.cmdAUTH = function(auth){
     if(this.state!=N3.States.AUTHENTICATION) return this.response("-ERR Only allowed in authentication mode");
     switch(auth){
@@ -376,7 +378,7 @@ N3.POP3Server.prototype.authCRAM_MD5 = function(auth){
     this.response("+ "+base64("<"+this.UID+"@"+N3.server_name+">"));
 }
 
-//CRAM MD5 step 2
+// CRAM MD5 step 2
 N3.POP3Server.prototype.cmdCRAM_MD5 = function(hash){
     if(this.state!=N3.States.AUTHENTICATION) return this.response("-ERR Only allowed in authentication mode");
     var params = base64_decode(hash).split(" "), user, challenge,
