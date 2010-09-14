@@ -50,11 +50,11 @@ NB! Some clients (iPhone) require valid SMTP server in order to add a new accoun
 License
 -------
 
-MIT. If you make any impromevents to the POP3 server code, then it would be nice to push the changes to here also.
+MIT. If you make any impromevents to the POP3 server code, then it would be nice to push the changes to here also (waiting for improvements to the protocol, new authentication methods etc.).
 
 NB
 -------
 
-*libssl-dev* package should be installed before building node.js from the source, otherwise crypto might not work
+*libssl-dev* package should be installed before building node.js from the source, otherwise crypto and thus TLS might not work
 
 Make sure that port 110 and 995 (-if secure connections are allowed) are open for incoming connections!
