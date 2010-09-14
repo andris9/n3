@@ -299,6 +299,7 @@ N3.POP3Server.prototype.cmdAUTHCheck = function(user, passFn){
             return !!this.authCallback(user, passFn);
         else if(typeof passFn=="string" || typeof passFn=="number")
             return !!this.authCallback(user, function(pass){return pass==passFn});
+        else return false;
     }
     return true;
 }

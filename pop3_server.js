@@ -61,3 +61,17 @@ N3.startServer(110, server_name, AuthStore, MessageStore, pkFilename, crtFilenam
 
 // listen on secure port 995
 N3.startServer(995, server_name, AuthStore, MessageStore, pkFilename, crtFilename, true);
+
+
+// Custom authentication method: FOOBAR <user> <pass>
+N3.extendAUTH("FOOBAR",function(authObj){
+    var params = authObj.params.split(" "),
+        user = params[0],
+        pass = params[1];
+
+    if(!user) // username is not set
+        return "-ERR Authentication error. FOOBAR expects <user> <password>"
+
+    authObj.user = user;
+    return authObj.check(user, pass);
+});

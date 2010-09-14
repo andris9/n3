@@ -20,21 +20,24 @@ Authentication
   * AUTH PLAIN
   * AUTH CRAM-MD5
 
-Authentication system is extendable by allowing to add new methods to the SASL AUTH command.
+Authentication system is extendable by allowing to add new methods to the *SASL AUTH* command.
 
-For example to add a method *FOOBAR*:
+For example to add a method *FOOBAR* (taken from *pop3_server.js*):
 
     // AUTH FOOBAR user pass
     N3.extendAUTH("FOOBAR",function(authObj){
         var params = authObj.params.split(" "),
             user = params[0],
             pass = params[1];
-        
+
+        if(!user) // username is not set
+            return "-ERR Authentication error. FOOBAR expects <user> <password>"
+
         authObj.user = user;
         return authObj.check(user, pass);
     });
 
-When the client asks for server capabilities with CAPA, the SASL response will be
+When the client asks for server capabilities with *CAPA*, the *SASL* response will be
 
     CLIENT: CAPA
     SERVER: ...
@@ -45,7 +48,7 @@ The client can the log in with the method FOOBAR which expects username and pass
     CLIENT: AUTH FOOBAR andris 12345
     SERVER: +OK You are now logged in
 
-See *sasl.js* for more complex examples (PLAIN + CRAM-MD5)
+See *sasl.js* for more complex examples (*PLAIN* + *CRAM-MD5*)
 
 Usage
 -------
