@@ -294,6 +294,7 @@ N3.POP3Server.prototype.cmdAUTHNext = function(params){
 }
 
 N3.POP3Server.prototype.cmdAUTHCheck = function(user, passFn){
+    if(user && !this.authObj.user) this.authObj.user = user;
     if(typeof this.authCallback=="function"){
         if(typeof passFn=="function")
             return !!this.authCallback(user, passFn);

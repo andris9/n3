@@ -57,19 +57,15 @@ function PLAIN(authObj){
 
     // Step 2
     var login = mime.decodeBase64(authObj.params),
-        parts = login.split("\u0000"),
-        user, pass;
+        parts = login.split("\u0000");
 
-    if(parts.length!=3)
+    if(parts.length!=3 || !parts[1])
         return "-ERR Invalid authentication data";
         
-    if(parts[0].length)
+    if(parts[0].length) // try to log in in behalf of some other user
         return "-ERR Not authorized to requested authorization identity";
     
-    authObj.user = parts[1];
-    authObj.pass = parts[2];
-    
-    return authObj.check(authObj.user, authObj.pass);
+    return authObj.check(parts[1], parts[2]);
 }
 
 // AUTH CRAM-MD5
@@ -90,15 +86,15 @@ function CRAM_MD5(authObj){
     }
 
     // Step 2
-    var params = mime.decodeBase64(authObj.params).split(" "), challenge,
+    var params = mime.decodeBase64(authObj.params).split(" "), user, challenge,
         salt = "<"+authObj.n3.UID+"@"+authObj.n3.server_name+">";
     console.log("CRAM-MD5 Unencoded: "+params);
-    authObj.user = params && params[0];
+    user = params && params[0];
     challenge = params && params[1];
-    if(!authObj.user || !challenge)
+    if(!user || !challenge)
         return "-ERR Invalid authentication";
     
-    return authObj.check(authObj.user, function(pass){
+    return authObj.check(user, function(pass){
             var hmac = crypto.createHmac("md5", pass), digest;
             hmac.update(salt);
             digest = hmac.digest("hex");

@@ -33,7 +33,6 @@ For example to add a method *FOOBAR* (taken from *pop3_server.js*):
         if(!user) // username is not set
             return "-ERR Authentication error. FOOBAR expects <user> <password>"
 
-        authObj.user = user;
         return authObj.check(user, pass);
     });
 
