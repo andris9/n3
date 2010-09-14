@@ -1,5 +1,6 @@
 var n3 = require("./n3"),
 
+    server_name = "node.ee",
     pkFilename  = "../cert/privatekey.pem",
     crtFilename = "../cert/certificate.pem";
 
@@ -46,4 +47,8 @@ function AuthStore(user, auth){
     return auth(password);
 }
 
-n3.N3.startServer(110, AuthStore,"node.ee", n3.MessageStore, pkFilename, crtFilename);
+// listen on standard port 110
+n3.N3.startServer(110, server_name, AuthStore, n3.MessageStore, pkFilename, crtFilename);
+
+// listen on secure port 995
+n3.N3.startServer(995, server_name, AuthStore, n3.MessageStore, pkFilename, crtFilename, true);

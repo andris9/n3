@@ -129,7 +129,7 @@ var N3 = {
         3: []
     },
     
-    startServer: function(port, auth, server_name, MsgStore, pkFilename, crtFilename){
+    startServer: function(port, server_name, auth, MsgStore, pkFilename, crtFilename, useTLS){
         
         // If cert files are set, add support to STLS
         var privateKey, certificate, credentials = false;
@@ -145,15 +145,15 @@ var N3 = {
         }
         
         net.createServer(this.createInstance.bind(
-                    this, auth, server_name, MsgStore, credentials)).listen(port);
+            this, server_name, auth, MsgStore, credentials, useTLS)).listen(port);
         console.log("Server running on port "+port)
     },
     
-    createInstance: function(auth, server_name, MsgStore, credentials, socket){
-        new this.POP3Server(socket, auth, server_name, MsgStore, credentials);
+    createInstance: function(server_name, auth, MsgStore, credentials, useTLS, socket){
+        new this.POP3Server(socket, server_name, auth, MsgStore, credentials, useTLS);
     },
     
-    POP3Server: function(socket, auth, server_name, MsgStore, credentials){
+    POP3Server: function(socket, server_name, auth, MsgStore, credentials, useTLS){
         this.server_name = server_name || N3.server_name;
         this.socket   = socket;
         this.state    = N3.States.AUTHENTICATION;
@@ -163,11 +163,17 @@ var N3 = {
         this.MsgStore = MsgStore;
         this.credentials = credentials;
 
+        if(useTLS && credentials)
+            socket.setSecure(credentials);
+        
         console.log("New connection from "+socket.remoteAddress);
         this.response("+OK POP3 Server ready <"+this.UID+"@"+this.server_name+">");
         
         socket.on("data", this.onData.bind(this));
         socket.on("end", this.onEnd.bind(this));
+        socket.on("secure", function(){
+            console.log("Secure connection successfully established")
+        });
     },
     
     foldLines: function(str, anywhere){
