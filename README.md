@@ -3,7 +3,22 @@ N3
 
 **N3** is an experimental POP3 server for [node.js](http://nodejs.org). It doesn't actually fetch any real mail messages but is able to send arbitrary data in the form of e-mail messages to any POP3 enabled e-mail client. For example latest Twitter messages or blog posts etc.
 
-The demo server (pop3_server.js) currently sends the same message with every request as a new message (with minor changes though).
+The demo server (pop3_server.js) currently sends the same message with every request as a new message (with minor changes though). 
+
+Secured connections
+----------
+
+**N3** supports both unencrypted connections on port 110 and encrypted TLS connections on port 995. STARTTLS encryption support for port 110 is also supported. See pop3_server.js for examples.
+
+Authentication
+--------------
+
+**N3** supports following authentication mechanisms:
+
+  * USER
+  * APOP
+  * PLAIN
+  * CRAM-MD5
 
 Usage
 -------
