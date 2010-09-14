@@ -113,7 +113,7 @@ MessageStore.prototype.removeDeleted = function(){
 
 var N3 = {
     
-    server_name: "node.ee",
+    server_name: "localhost",
     
     States:{
         AUTHENTICATION: 1,
@@ -129,7 +129,7 @@ var N3 = {
         3: []
     },
     
-    startServer: function(port, auth, MsgStore, pkFilename, crtFilename){
+    startServer: function(port, auth, server_name, MsgStore, pkFilename, crtFilename){
         
         // If cert files are set, add support to STLS
         var privateKey, certificate, credentials = false;
@@ -145,15 +145,16 @@ var N3 = {
         }
         
         net.createServer(this.createInstance.bind(
-                    this, auth, MsgStore, credentials)).listen(port);
+                    this, auth, server_name, MsgStore, credentials)).listen(port);
         console.log("Server running on port "+port)
     },
     
-    createInstance: function(auth, MsgStore, credentials, socket){
-        new this.POP3Server(socket, auth, MsgStore, credentials);
+    createInstance: function(auth, server_name, MsgStore, credentials, socket){
+        new this.POP3Server(socket, auth, server_name, MsgStore, credentials);
     },
     
-    POP3Server: function(socket, auth, MsgStore, credentials){
+    POP3Server: function(socket, auth, server_name, MsgStore, credentials){
+        this.server_name = server_name || N3.server_name;
         this.socket   = socket;
         this.state    = N3.States.AUTHENTICATION;
         this.connection_id = ++N3.COUNTER;
@@ -163,7 +164,7 @@ var N3 = {
         this.credentials = credentials;
 
         console.log("New connection from "+socket.remoteAddress);
-        this.response("+OK POP3 Server ready <"+this.UID+"@"+N3.server_name+">");
+        this.response("+OK POP3 Server ready <"+this.UID+"@"+this.server_name+">");
         
         socket.on("data", this.onData.bind(this));
         socket.on("end", this.onEnd.bind(this));
@@ -387,14 +388,14 @@ N3.POP3Server.prototype.cmdAUTH = function(auth){
 // CRAM MD5 step 1
 N3.POP3Server.prototype.authCRAM_MD5 = function(){
     this.waitState = "CRAM_MD5";
-    this.response("+ "+base64("<"+this.UID+"@"+N3.server_name+">"));
+    this.response("+ "+base64("<"+this.UID+"@"+this.server_name+">"));
 }
 
 // CRAM MD5 step 2
 N3.POP3Server.prototype.cmdCRAM_MD5 = function(hash){
     if(this.state!=N3.States.AUTHENTICATION) return this.response("-ERR Only allowed in authentication mode");
     var params = base64_decode(hash).split(" "), user, challenge,
-        salt = "<"+this.UID+"@"+N3.server_name+">";
+        salt = "<"+this.UID+"@"+this.server_name+">";
     console.log("Unencoded: "+params);
     user = params && params[0];
     challenge = params && params[1];
@@ -467,7 +468,7 @@ N3.POP3Server.prototype.cmdAPOP = function(params){
     params = params.split(" ");
     var user = params[0] && params[0].trim(),
         hash = params[1] && params[1].trim().toLowerCase(),
-        salt = "<"+this.UID+"@"+N3.server_name+">";
+        salt = "<"+this.UID+"@"+this.server_name+">";
 
     if(typeof this.authCallback=="function"){
         if(!this.authCallback(user, function(pass){
