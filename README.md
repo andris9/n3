@@ -25,9 +25,9 @@ Usage
 
 1. To use the server you need to create certificate files for STLS secure connections. Create privatekey.pem and certificate.pem with
 
-    openssl genrsa -out privatekey.pem 1024
-    openssl req -new -key privatekey.pem -out certrequest.csr
-    openssl x509 -req -in certrequest.csr -signkey privatekey.pem -out certificate.pem
+       openssl genrsa -out privatekey.pem 1024
+       openssl req -new -key privatekey.pem -out certrequest.csr
+       openssl x509 -req -in certrequest.csr -signkey privatekey.pem -out certificate.pem
 
 2. Update *pop3_server.js* to set the location of the certificate files (privatekey.pem and certificate.pem), default location: "../cert/"
 
