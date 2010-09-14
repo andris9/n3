@@ -243,7 +243,7 @@ this.decodeBase64 = function(str, charset){
  * FIXME: This should probably not be here but in "envelope" instead
  **/
 this.parseHeaders = function(headers){
-    var text, lines, line, i, name, value, cmd, header_lines = [];
+    var text, lines, line, i, name, value, cmd, header_lines = {};
     // unfold
     headers = headers.replace(/\r?\n([ \t])/gm," ");
 
@@ -256,7 +256,8 @@ this.parseHeaders = function(headers){
         if(cmd && (cmd = cmd[0])){
             name = cmd;
             value = lines[i].substr(name.length+1);
-            header_lines.push(parseHeaderLine(name, value));
+            if(!header_lines[name.toLowerCase()])header_lines[name.toLowerCase()] = [];
+            header_lines[name.toLowerCase()].push(parseHeaderLine(name, value));
         }
     }
     

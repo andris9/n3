@@ -1,5 +1,18 @@
 var net = require('net'),
-    crypto = require('crypto');
+    crypto = require('crypto'),
+    fs = require("fs"),
+
+    privateKey = fs.readFileSync('../cert/privatekey.pem'),
+    certificate = fs.readFileSync('../cert/certificate.pem'),
+    credentials = crypto.createCredentials({key: privateKey.toString("ascii"), cert: certificate.toString("ascii")});
+
+/*
+How to create private key and certificate:
+
+openssl genrsa -out privatekey.pem 1024 
+openssl req -new -key privatekey.pem -out certrequest.csr 
+openssl x509 -req -in certrequest.csr -signkey privatekey.pem -out certificate.pem
+*/
 
 // Sample user authentication
 
@@ -123,7 +136,7 @@ var N3 = {
     COUNTER: 0,
     
     capabilities: {
-        1: ["UIDL", "USER", "SASL CRAM-MD5"],
+        1: ["STLS", "UIDL", "USER", "SASL CRAM-MD5"],
         2: ["UIDL", "EXPIRE NEVER", "LOGIN-DELAY 0", "IMPLEMENTATION N3 node.js POP3 server"],
         3: []
     },
@@ -304,18 +317,17 @@ N3.POP3Server.prototype.onCommand = function(request){
 
     this.updateTimeout();
 
-    if(!cmd && this.waitState){
-        cmd = this.waitState;
+    if(this.waitState){
+        cmd = [this.waitState];
         params = request.trim();
     }
-    
     this.waitState = false;
     
     if(!cmd)
         return this.response("-ERR");
-
-    if(typeof this["cmd"+cmd[0].toUpperCase()]=="function")
+    if(typeof this["cmd"+cmd[0].toUpperCase()]=="function"){
         return this["cmd"+cmd[0].toUpperCase()](params && params.trim());
+    }
     
     return this.response("-ERR");
 }
@@ -445,6 +457,14 @@ N3.POP3Server.prototype.cmdPASS = function(password){
     }else
         return this.response("-ERR Error with initializing");
 }
+
+N3.POP3Server.prototype.cmdSTLS = function(){
+    if(this.state!=N3.States.AUTHENTICATION) return this.response("-ERR Only allowed in authentication mode");
+    this.response("+OK Begin TLS negotiation now");
+    this.socket.setSecure(credentials);
+    console.log("Entered secure connection mode (TLS)")
+}
+
 
 // TRANSACTION commands
 
