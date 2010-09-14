@@ -1,4 +1,7 @@
-var n3 = require("./n3");
+var n3 = require("./n3"),
+
+    pkFilename  = "../cert/privatekey.pem",
+    crtFilename = "../cert/certificate.pem";
 
 // use markdown parser to create HTML message
 try{
@@ -43,4 +46,4 @@ function AuthStore(user, auth){
     return auth(password);
 }
 
-n3.N3.startServer(110, AuthStore,"node.ee", n3.MessageStore, "../cert/privatekey.pem", "../cert/certificate.pem");
+n3.N3.startServer(110, AuthStore,"node.ee", n3.MessageStore, pkFilename, crtFilename);
