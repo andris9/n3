@@ -42,12 +42,12 @@ When the client asks for server capabilities with *CAPA*, the *SASL* response wi
     SERVER: ...
     SERVER: SASL PLAIN CRAM-MD5 FOOBAR
 
-The client can the log in with the method FOOBAR which expects username and password as the parameters
+The client is then able to log in with the method FOOBAR which expects username and password for its parameters
 
     CLIENT: AUTH FOOBAR andris 12345
     SERVER: +OK You are now logged in
 
-See *sasl.js* for more complex examples (*PLAIN* + *CRAM-MD5*)
+See *sasl.js* for more complex examples - *PLAIN* and *CRAM-MD5* (*APOP* and *USER* are built in methods and do not go through the *SASL AUTH* command).
 
 Usage
 -------
