@@ -137,7 +137,7 @@ var N3 = {
     
     capabilities: {
         1: ["STLS", "UIDL", "USER", "SASL CRAM-MD5"],
-        2: ["UIDL", "EXPIRE NEVER", "LOGIN-DELAY 0", "IMPLEMENTATION N3 node.js POP3 server"],
+        2: ["STLS", "UIDL", "EXPIRE NEVER", "LOGIN-DELAY 0", "IMPLEMENTATION N3 node.js POP3 server"],
         3: []
     },
     
@@ -352,6 +352,14 @@ N3.POP3Server.prototype.cmdQUIT = function(){
     this.response("+OK N3 POP3 Server signing off");
 }
 
+// ENTER SECURE TLS MODE
+N3.POP3Server.prototype.cmdSTLS = function(){
+    this.response("+OK Begin TLS negotiation now");
+    this.socket.setSecure(credentials);
+    console.log("Entered secure connection mode (TLS)")
+}
+
+
 // AUTHENTICATION commands
 
 // EXPERIMENTAL CRAM-MD5 SUPPORT - NOT TESTED, MIGHT NOT WORK
@@ -457,14 +465,6 @@ N3.POP3Server.prototype.cmdPASS = function(password){
     }else
         return this.response("-ERR Error with initializing");
 }
-
-N3.POP3Server.prototype.cmdSTLS = function(){
-    if(this.state!=N3.States.AUTHENTICATION) return this.response("-ERR Only allowed in authentication mode");
-    this.response("+OK Begin TLS negotiation now");
-    this.socket.setSecure(credentials);
-    console.log("Entered secure connection mode (TLS)")
-}
-
 
 // TRANSACTION commands
 
