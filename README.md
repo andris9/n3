@@ -47,7 +47,7 @@ The client is then able to log in with the method FOOBAR which expects username 
     CLIENT: AUTH FOOBAR andris 12345
     SERVER: +OK You are now logged in
 
-See *sasl.js* for more complex examples - *PLAIN* and *CRAM-MD5* (*APOP* and *USER* are built in methods and do not go through the *SASL AUTH* command).
+See *sasl.js* for more complex examples - *PLAIN* and *CRAM-MD5* (*APOP* and *USER* are built in methods and do not go through the *SASL AUTH* interface).
 
 Usage
 -------
