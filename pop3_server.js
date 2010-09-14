@@ -43,4 +43,4 @@ function AuthStore(user, auth){
     return auth(password);
 }
 
-n3.N3.startServer(110, AuthStore, n3.MessageStore);
+n3.N3.startServer(110, AuthStore, n3.MessageStore, "../cert/privatekey.pem", "../cert/certificate.pem");

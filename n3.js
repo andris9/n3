@@ -1,18 +1,6 @@
 var net = require('net'),
     crypto = require('crypto'),
-    fs = require("fs"),
-
-    privateKey = fs.readFileSync('../cert/privatekey.pem'),
-    certificate = fs.readFileSync('../cert/certificate.pem'),
-    credentials = crypto.createCredentials({key: privateKey.toString("ascii"), cert: certificate.toString("ascii")});
-
-/*
-How to create private key and certificate:
-
-openssl genrsa -out privatekey.pem 1024 
-openssl req -new -key privatekey.pem -out certrequest.csr 
-openssl x509 -req -in certrequest.csr -signkey privatekey.pem -out certificate.pem
-*/
+    fs = require("fs");
 
 // Sample user authentication
 
@@ -136,29 +124,44 @@ var N3 = {
     COUNTER: 0,
     
     capabilities: {
-        1: ["STLS", "UIDL", "USER", "SASL CRAM-MD5"],
-        2: ["STLS", "UIDL", "EXPIRE NEVER", "LOGIN-DELAY 0", "IMPLEMENTATION N3 node.js POP3 server"],
+        1: ["UIDL", "USER", "SASL PLAIN CRAM-MD5"],
+        2: ["UIDL", "EXPIRE NEVER", "LOGIN-DELAY 0", "IMPLEMENTATION N3 node.js POP3 server"],
         3: []
     },
     
-    startServer: function(port, auth, MsgStore){
+    startServer: function(port, auth, MsgStore, pkFilename, crtFilename){
+        
+        // If cert files are set, add support to STLS
+        var privateKey, certificate, credentials = false;
+        if(pkFilename && crtFilename){
+            privateKey = fs.readFileSync(pkFilename),
+            certificate = fs.readFileSync(crtFilename),
+            credentials = crypto.createCredentials({
+                key: privateKey.toString("ascii"),
+                cert: certificate.toString("ascii")
+            });
+            this.capabilities[1].unshift("STLS");
+            this.capabilities[2].unshift("STLS");
+        }
+        
         net.createServer(this.createInstance.bind(
-                    this, auth, MsgStore)).listen(port);
+                    this, auth, MsgStore, credentials)).listen(port);
         console.log("Server running on port "+port)
     },
     
-    createInstance: function(auth, MsgStore, socket){
-        new this.POP3Server(socket, auth, MsgStore);
+    createInstance: function(auth, MsgStore, credentials, socket){
+        new this.POP3Server(socket, auth, MsgStore, credentials);
     },
     
-    POP3Server: function(socket, auth, MsgStore){
+    POP3Server: function(socket, auth, MsgStore, credentials){
         this.socket   = socket;
         this.state    = N3.States.AUTHENTICATION;
         this.connection_id = ++N3.COUNTER;
-        this.UID   = this.connection_id + "." + (+new Date());
+        this.UID      = this.connection_id + "." + (+new Date());
         this.authCallback = auth;
         this.MsgStore = MsgStore;
-        
+        this.credentials = credentials;
+
         console.log("New connection from "+socket.remoteAddress);
         this.response("+OK POP3 Server ready <"+this.UID+"@"+N3.server_name+">");
         
@@ -350,12 +353,14 @@ N3.POP3Server.prototype.cmdQUIT = function(){
         this.messages.removeDeleted();
     }
     this.response("+OK N3 POP3 Server signing off");
+    this.socket.end();
 }
 
 // STLS - ENTER SECURE TLS MODE
 N3.POP3Server.prototype.cmdSTLS = function(){
+    if(!this.credentials) return this.response("-ERR Not implemented");
     this.response("+OK Begin TLS negotiation now");
-    this.socket.setSecure(credentials);
+    this.socket.setSecure(this.credentials);
     console.log("Entered secure connection mode (TLS)")
 }
 
@@ -366,14 +371,21 @@ N3.POP3Server.prototype.cmdSTLS = function(){
 // AUTH auth_engine - initiates an authentication request
 N3.POP3Server.prototype.cmdAUTH = function(auth){
     if(this.state!=N3.States.AUTHENTICATION) return this.response("-ERR Only allowed in authentication mode");
-    switch(auth){
+    
+    if(!auth)
+        return this.response("-ERR Not implemented yet");
+    
+    var parts = auth.split(" ");
+    
+    switch(parts[0].trim().toUpperCase()){
         case "CRAM-MD5": return this.authCRAM_MD5();
+        case "PLAIN": return this.authPLAIN(parts[1] && parts[1].trim());
     }
     this.response("-ERR Not implemented yet");
 }
 
 // CRAM MD5 step 1
-N3.POP3Server.prototype.authCRAM_MD5 = function(auth){
+N3.POP3Server.prototype.authCRAM_MD5 = function(){
     this.waitState = "CRAM_MD5";
     this.response("+ "+base64("<"+this.UID+"@"+N3.server_name+">"));
 }
@@ -395,6 +407,44 @@ N3.POP3Server.prototype.cmdCRAM_MD5 = function(hash){
             hmac.update(salt);
             digest = hmac.digest("hex");
             return digest==challenge;
+        })){
+            return this.response("-ERR Invalid login");
+        }
+    }
+    
+    this.user = user;
+    
+    if(this.afterLogin()){
+        this.state = N3.States.TRANSACTION;
+        return this.response("+OK You are now logged in");
+    }else
+        return this.response("-ERR Error with initializing");
+}
+
+//PLAIN step 1
+N3.POP3Server.prototype.authPLAIN = function(hash){
+    if(hash)return this.cmdPLAIN(hash);
+    this.waitState = "PLAIN";
+    this.response("+ "); // NB! space after + is mandatory!
+}
+
+//PLAIN step 2
+N3.POP3Server.prototype.cmdPLAIN = function(hash){
+    var login = base64_decode(hash),
+        parts = login.split("\u0000"),
+        user, pass;
+    if(parts.length!=3)
+        return this.response("-ERR Invalid authentication data");
+        
+    if(parts[0].length)
+        return this.response("-ERR Not authorized to requested authorization identity");
+    
+    user = parts[1];
+    pass = parts[2];
+    
+    if(typeof this.authCallback=="function"){
+        if(!this.authCallback(user, function(pass){
+            return pass==pass;
         })){
             return this.response("-ERR Invalid login");
         }
@@ -580,3 +630,4 @@ function base64_decode(str){
 // EXPORT
 this.N3 = N3;
 this.MessageStore = MessageStore;
+
