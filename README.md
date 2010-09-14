@@ -23,7 +23,7 @@ Authentication
 Usage
 -------
 
-1. To use the server you need to create certificate files for STLS secure connections. Create privatekey.pem and certificate.pem with
+1. To use the server you need to create certificate files for TLS secure connections. Create privatekey.pem and certificate.pem with
 
        openssl genrsa -out privatekey.pem 1024
        openssl req -new -key privatekey.pem -out certrequest.csr
@@ -49,3 +49,8 @@ License
 -------
 
 MIT. If you make any impromevents to the POP3 server code, then it would be nice to push the changes to here also.
+
+NB
+-------
+
+Make sure that port 110 and 995 (-if secure connections are allowed) are open for incoming connections!
