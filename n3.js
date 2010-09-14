@@ -140,8 +140,6 @@ var N3 = {
                 key: privateKey.toString("ascii"),
                 cert: certificate.toString("ascii")
             });
-            this.capabilities[1].unshift("STLS");
-            this.capabilities[2].unshift("STLS");
         }
         
         net.createServer(this.createInstance.bind(
@@ -162,6 +160,20 @@ var N3 = {
         this.authCallback = auth;
         this.MsgStore = MsgStore;
         this.credentials = credentials;
+        this.connection_secured = false;
+
+        // Copy N3 capabilities info into the current object
+        this.capabilities = {
+            1: Object.create(N3.capabilities[1]),
+            2: Object.create(N3.capabilities[2]),
+            3: Object.create(N3.capabilities[3])
+        }
+
+        // announce STARTLS support
+        if(!useTLS && credentials){
+            this.capabilities[1].unshift("STLS");
+            this.capabilities[2].unshift("STLS");
+        }
 
         if(useTLS && credentials)
             socket.setSecure(credentials);
@@ -171,9 +183,10 @@ var N3 = {
         
         socket.on("data", this.onData.bind(this));
         socket.on("end", this.onEnd.bind(this));
-        socket.on("secure", function(){
+        socket.on("secure", (function(){
             console.log("Secure connection successfully established")
-        });
+            this.connection_secured = true;
+        }).bind(this));
     },
     
     foldLines: function(str, anywhere){
@@ -347,8 +360,8 @@ N3.POP3Server.prototype.onCommand = function(request){
 // CAPA - Reveals server capabilities to the client
 N3.POP3Server.prototype.cmdCAPA = function(){
     this.response("+OK Capability list follows");
-    for(var i=0;i<N3.capabilities[this.state].length; i++){
-        this.response(N3.capabilities[this.state][i]);
+    for(var i=0;i<this.capabilities[this.state].length; i++){
+        this.response(this.capabilities[this.state][i]);
     }
     this.response(".");
 }
@@ -366,6 +379,7 @@ N3.POP3Server.prototype.cmdQUIT = function(){
 // STLS - ENTER SECURE TLS MODE
 N3.POP3Server.prototype.cmdSTLS = function(){
     if(!this.credentials) return this.response("-ERR Not implemented");
+    if(this.connconnection_secured) return this.response("-ERR TLS already established");
     this.response("+OK Begin TLS negotiation now");
     this.socket.setSecure(this.credentials);
     console.log("Entered secure connection mode (TLS)")

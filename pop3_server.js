@@ -1,8 +1,8 @@
 var n3 = require("./n3"),
 
     server_name = "node.ee",
-    pkFilename  = "../cert/privatekey.pem",
-    crtFilename = "../cert/certificate.pem";
+    pkFilename  = "./cert/privatekey.pem",
+    crtFilename = "./cert/certificate.pem";
 
 // use markdown parser to create HTML message
 try{

@@ -29,7 +29,9 @@ Usage
        openssl req -new -key privatekey.pem -out certrequest.csr
        openssl x509 -req -in certrequest.csr -signkey privatekey.pem -out certificate.pem
 
-2. Update *pop3_server.js* to set the location of the certificate files (privatekey.pem and certificate.pem), default location: "../cert/"
+   There are already example certificate files in "/cert" for a kickstart installation but you should probably still genereate your own.
+
+2. Copy privatekey.pem and certificate.pem to "/cert" (overwrite the sample certificate files)
 
 3. Run *pop3_server.js* and add a POP3 account to your e-mail client pointing to the node.js server. With the demo script usernames don't matter, any name goes, but the password needs to be 12345
 
