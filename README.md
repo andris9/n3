@@ -8,15 +8,15 @@ The demo server (pop3_server.js) currently sends the same message with every req
 Usage
 -------
 
-To use the server you need to create certificate files for STLS secure connections. Create privatekey.pem and certificate.pem with
+1. To use the server you need to create certificate files for STLS secure connections. Create privatekey.pem and certificate.pem with
 
     openssl genrsa -out privatekey.pem 1024
     openssl req -new -key privatekey.pem -out certrequest.csr
     openssl x509 -req -in certrequest.csr -signkey privatekey.pem -out certificate.pem
 
-And copy these files to ../cert/ (see [lines 5-6 of n3.js](http://github.com/andris9/n3/blob/master/n3.js#L5-6))
+2. Update *pop3_server.js* to set the location of the certificate files (privatekey.pem and certificate.pem), default location: "../cert/"
 
-Run *pop3_server.js* and add a POP3 account to your e-mail client pointing to the node.js server. With the demo script usernames don't matter, any name goes, but the password needs to be 12345
+3. Run *pop3_server.js* and add a POP3 account to your e-mail client pointing to the node.js server. With the demo script usernames don't matter, any name goes, but the password needs to be 12345
 
     node pop3_server.js
 
