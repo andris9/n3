@@ -8,6 +8,14 @@ The demo server (pop3_server.js) currently sends the same message with every req
 Usage
 -------
 
+To use the server you need to create certificate files for STLS secure connections. Create privatekey.pem and certificate.pem with
+
+    openssl genrsa -out privatekey.pem 1024
+    openssl req -new -key privatekey.pem -out certrequest.csr
+    openssl x509 -req -in certrequest.csr -signkey privatekey.pem -out certificate.pem
+
+And copy these files to ../cert/ (see [http://github.com/andris9/n3/blob/master/n3.js#L5-6](lines 5-6 of n3.js))
+
 Run *pop3_server.js* and add a POP3 account to your e-mail client pointing to the node.js server. With the demo script usernames don't matter, any name goes, but the password needs to be 12345
 
     node pop3_server.js
@@ -26,8 +34,3 @@ License
 -------
 
 MIT. If you make any impromevents to the POP3 server code, then it would be nice to push the changes to here also.
-
-NB
---
-
-Any help getting **STLS** running would be greatly appreciated! Currenlty I have no clue how to achieve this. Shouldn't be very hard, I just don't know much about secure connections.
