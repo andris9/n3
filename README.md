@@ -55,4 +55,6 @@ MIT. If you make any impromevents to the POP3 server code, then it would be nice
 NB
 -------
 
+*libssl-dev* package should be installed before building node.js from the source, otherwise crypto might not work
+
 Make sure that port 110 and 995 (-if secure connections are allowed) are open for incoming connections!

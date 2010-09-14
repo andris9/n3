@@ -1,4 +1,5 @@
-var n3 = require("./n3"),
+var N3 = require("./n3").N3,
+    MessageStore = require("./messagestore").MessageStore,
 
     server_name = "node.ee",
     pkFilename  = "./cert/privatekey.pem",
@@ -10,7 +11,7 @@ try{
 }catch(E){markdown = function(str){return str.replace(/\n/g,"<br />\n");}}
 
 // runs after the user is successfully authenticated
-n3.MessageStore.prototype.registerHook = function(){
+MessageStore.prototype.registerHook = function(){
 
     var curtime = new Date().toLocaleString(),
         message = "Tere ÕÜÄÖŠ!\n------------------\n\n"+
@@ -48,7 +49,7 @@ function AuthStore(user, auth){
 }
 
 // listen on standard port 110
-n3.N3.startServer(110, server_name, AuthStore, n3.MessageStore, pkFilename, crtFilename);
+N3.startServer(110, server_name, AuthStore, MessageStore, pkFilename, crtFilename);
 
 // listen on secure port 995
-n3.N3.startServer(995, server_name, AuthStore, n3.MessageStore, pkFilename, crtFilename, true);
+N3.startServer(995, server_name, AuthStore, MessageStore, pkFilename, crtFilename, true);
