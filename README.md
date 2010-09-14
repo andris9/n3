@@ -33,7 +33,7 @@ Usage
 
 3. Run *pop3_server.js* and add a POP3 account to your e-mail client pointing to the node.js server. With the demo script usernames don't matter, any name goes, but the password needs to be 12345
 
-    node pop3_server.js
+       node pop3_server.js
 
 For example, if you run *pop3_server.js* in *localhost* then the incoming settings should be something like:
 
