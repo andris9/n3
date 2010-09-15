@@ -176,7 +176,7 @@ var N3 = {
  * Creates a dedicated server instance for every separate connection. Run by
  * N3.createInstance after a user tries to connect to the selected port.
  **/
-N3.POP3Server: function(socket, server_name, auth, MsgStore, credentials, useTLS){
+N3.POP3Server = function(socket, server_name, auth, MsgStore, credentials, useTLS){
     this.server_name = server_name || N3.server_name;
     this.socket   = socket;
     this.state    = N3.States.AUTHENTICATION;
