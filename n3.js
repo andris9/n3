@@ -126,7 +126,10 @@ var N3 = {
                 ).listen(port);
             console.log((useTLS?"Secure server":"Server")+" running on port "+port)
             return true;
-        }catch(E){return false; // probably port is already in use}
+        }catch(E){
+            // probably port is already in use
+            return false;
+        }
     },
     
     /**
