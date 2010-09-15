@@ -255,11 +255,14 @@ N3.POP3Server.prototype.response = function(message){
 
 N3.POP3Server.prototype.afterLogin = function(){
     var messages = false;
+
+    if(this.user && N3.connected_users[this.user.trim().toLowerCase()]){
+        this.user = false; // to prevent clearing it with exit
+        return "-ERR [IN-USE] You already have a POP session running";
+    }
+
     if(typeof this.MsgStore!="function")
         return false;
-    
-    if(this.user && N3.connected_users[this.user.trim().toLowerCase()])
-        return "-ERR [IN-USE] You already have a POP session running";
     
     if(this.user && (messages = new this.MsgStore(this.user))){
         this.messages = messages;
@@ -419,7 +422,7 @@ N3.POP3Server.prototype.cmdAUTHNext = function(params){
 }
 
 N3.POP3Server.prototype.cmdAUTHCheck = function(user, passFn){
-    if(user && !this.authObj.user) this.authObj.user = user;
+    if(user) this.authObj.user = user;
     if(typeof this.authCallback=="function"){
         if(typeof passFn=="function")
             return !!this.authCallback(user, passFn);
