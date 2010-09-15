@@ -63,7 +63,7 @@ function PLAIN(authObj){
         return "-ERR Invalid authentication data";
         
     if(parts[0].length) // try to log in in behalf of some other user
-        return "-ERR Not authorized to requested authorization identity";
+        return "-ERR [AUTH] Not authorized to requested authorization identity";
     
     return authObj.check(parts[1], parts[2]);
 }
