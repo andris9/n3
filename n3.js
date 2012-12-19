@@ -101,10 +101,10 @@ var N3 = {
                 this, server_name, auth, MsgStore)
             ).listen(port, function(err){
                 if(err){
-                    console.log("Failed starting server");
+                    //console.log("Failed starting server");
                     return callback(err);
                 }else{
-                    console.log("POP3 Server running on port "+port)
+                    //console.log("POP3 Server running on port "+port)
                     return callback && callback(null);
                 }
             });
@@ -172,7 +172,7 @@ N3.POP3Server = function(socket, server_name, auth, MsgStore){
         3: Object.create(N3.capabilities[3])
     }
     
-    console.log("New connection from "+socket.remoteAddress);
+    //console.log("New connection from "+socket.remoteAddress);
     this.response("+OK POP3 Server ready <"+this.UID+"@"+this.server_name+">");
     
     socket.on("data", this.onData.bind(this));
@@ -206,7 +206,7 @@ N3.POP3Server.prototype.updateTimeout = function(){
             return;
         if(this.sate==N3.States.TRANSACTION)
             this.state = N3.States.UPDATE;
-        console.log("Connection closed for client inactivity\n\n");
+        //console.log("Connection closed for client inactivity\n\n");
         if(this.user && N3.connected_users[this.user.trim().toLowerCase()])
             delete N3.connected_users[this.user.trim().toLowerCase()];
         this.socket.end();
@@ -222,7 +222,7 @@ N3.POP3Server.prototype.response = function(message){
         response = Buffer.concat([message, new Buffer("\r\n", "utf-8")]);
     }
     
-    console.log("SERVER: "+message);
+    //console.log("SERVER: "+message);
     this.socket.write(response);
 }
 
@@ -247,7 +247,7 @@ N3.POP3Server.prototype.afterLogin = function(){
 
 N3.POP3Server.prototype.onData = function(data){
     var request = data.toString("ascii", 0, data.length);
-    console.log("CLIENT: "+request.trim());
+    //console.log("CLIENT: "+request.trim());
     this.onCommand(request);
 }
 
@@ -255,11 +255,12 @@ N3.POP3Server.prototype.onEnd = function(data){
     if(this.state===null)
         return;
     this.state = N3.States.UPDATE;
-    if(this.user)
-        console.log("Closing: "+this.user)
+    if(this.user){
+        //console.log("Closing: "+this.user)
+    }
     if(this.user && N3.connected_users[this.user.trim().toLowerCase()])
         delete N3.connected_users[this.user.trim().toLowerCase()];
-    console.log("Connection closed\n\n");
+    //console.log("Connection closed\n\n");
     this.socket.end();
     this.destroy();
 }

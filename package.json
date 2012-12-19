@@ -1,6 +1,6 @@
 {
   "name": "pop3-n3",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "POP3 server for node.js",
   "main": "n3.js",
   "scripts": {
