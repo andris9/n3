@@ -52,6 +52,14 @@ See *sasl.js* for more complex examples - *PLAIN* and *CRAM-MD5* (*APOP* and *US
 Usage
 -------
 
+Install with npm
+
+    npm install pop3-n3
+
+Require the module
+
+    var n3 = require("pop3-n3");
+
 1. Run *pop3_server.js* and add a POP3 account to your e-mail client pointing to the node.js server. With the demo script usernames don't matter, any name goes, but the password needs to be 12345
 
        node pop3_server.js

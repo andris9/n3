@@ -1,0 +1,134 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/local/bin/node', '/usr/local/bin/npm', 'publish' ]
+2 info using npm@1.1.69
+3 info using node@v0.8.16
+4 verbose publish [ '.' ]
+5 verbose read json /Users/andris/Projects/n3/package.json
+6 verbose cache add [ '.', null ]
+7 silly cache add name=undefined spec="." args=[".",null]
+8 verbose parsed url { pathname: '.', path: '.', href: '.' }
+9 silly lockFile 3a52ce78- .
+10 verbose lock . /Users/andris/.npm/3a52ce78-.lock
+11 verbose read json package.json
+12 verbose tar pack [ '/var/folders/z1/mz6slcdn37z7tnt0v7m_l_780000gn/T/npm-72411/1355905336375-0.8214056889992207/tmp.tgz',
+12 verbose tar pack   '.' ]
+13 verbose tarball /var/folders/z1/mz6slcdn37z7tnt0v7m_l_780000gn/T/npm-72411/1355905336375-0.8214056889992207/tmp.tgz
+14 verbose folder .
+15 info prepublish n3@0.1.0
+16 silly lockFile 6a22ac43-36375-0-8214056889992207-tmp-tgz /var/folders/z1/mz6slcdn37z7tnt0v7m_l_780000gn/T/npm-72411/1355905336375-0.8214056889992207/tmp.tgz
+17 verbose lock /var/folders/z1/mz6slcdn37z7tnt0v7m_l_780000gn/T/npm-72411/1355905336375-0.8214056889992207/tmp.tgz /Users/andris/.npm/6a22ac43-36375-0-8214056889992207-tmp-tgz.lock
+18 silly lockFile 6a22ac43-36375-0-8214056889992207-tmp-tgz /var/folders/z1/mz6slcdn37z7tnt0v7m_l_780000gn/T/npm-72411/1355905336375-0.8214056889992207/tmp.tgz
+19 verbose tar unpack /var/folders/z1/mz6slcdn37z7tnt0v7m_l_780000gn/T/npm-72411/1355905336375-0.8214056889992207/tmp.tgz
+20 silly lockFile 7294baca-36375-0-8214056889992207-package /var/folders/z1/mz6slcdn37z7tnt0v7m_l_780000gn/T/npm-72411/1355905336375-0.8214056889992207/package
+21 verbose lock /var/folders/z1/mz6slcdn37z7tnt0v7m_l_780000gn/T/npm-72411/1355905336375-0.8214056889992207/package /Users/andris/.npm/7294baca-36375-0-8214056889992207-package.lock
+22 silly gunzTarPerm modes [ '755', '644' ]
+23 silly gunzTarPerm extractEntry package.json
+24 silly gunzTarPerm extractEntry .npmignore
+25 silly gunzTarPerm extractEntry README.md
+26 silly gunzTarPerm extractEntry messagestore.js
+27 silly gunzTarPerm extractEntry mime.js
+28 silly gunzTarPerm extractEntry n3.js
+29 silly gunzTarPerm extractEntry pop3_server.js
+30 silly gunzTarPerm extractEntry sasl.js
+31 silly gunzTarPerm extractEntry cert/certificate.pem
+32 silly gunzTarPerm extractEntry cert/privatekey.pem
+33 verbose read json /var/folders/z1/mz6slcdn37z7tnt0v7m_l_780000gn/T/npm-72411/1355905336375-0.8214056889992207/package/package.json
+34 silly lockFile 7294baca-36375-0-8214056889992207-package /var/folders/z1/mz6slcdn37z7tnt0v7m_l_780000gn/T/npm-72411/1355905336375-0.8214056889992207/package
+35 verbose from cache /var/folders/z1/mz6slcdn37z7tnt0v7m_l_780000gn/T/npm-72411/1355905336375-0.8214056889992207/package/package.json
+36 verbose tar pack [ '/Users/andris/.npm/n3/0.1.0/package.tgz',
+36 verbose tar pack   '/var/folders/z1/mz6slcdn37z7tnt0v7m_l_780000gn/T/npm-72411/1355905336375-0.8214056889992207/package' ]
+37 verbose tarball /Users/andris/.npm/n3/0.1.0/package.tgz
+38 verbose folder /var/folders/z1/mz6slcdn37z7tnt0v7m_l_780000gn/T/npm-72411/1355905336375-0.8214056889992207/package
+39 silly lockFile 6228b672--andris-npm-n3-0-1-0-package-tgz /Users/andris/.npm/n3/0.1.0/package.tgz
+40 verbose lock /Users/andris/.npm/n3/0.1.0/package.tgz /Users/andris/.npm/6228b672--andris-npm-n3-0-1-0-package-tgz.lock
+41 silly lockFile 6228b672--andris-npm-n3-0-1-0-package-tgz /Users/andris/.npm/n3/0.1.0/package.tgz
+42 silly lockFile b0f47937-sers-andris-npm-n3-0-1-0-package /Users/andris/.npm/n3/0.1.0/package
+43 verbose lock /Users/andris/.npm/n3/0.1.0/package /Users/andris/.npm/b0f47937-sers-andris-npm-n3-0-1-0-package.lock
+44 silly lockFile b0f47937-sers-andris-npm-n3-0-1-0-package /Users/andris/.npm/n3/0.1.0/package
+45 verbose tar unpack /Users/andris/.npm/n3/0.1.0/package.tgz
+46 silly lockFile b0f47937-sers-andris-npm-n3-0-1-0-package /Users/andris/.npm/n3/0.1.0/package
+47 verbose lock /Users/andris/.npm/n3/0.1.0/package /Users/andris/.npm/b0f47937-sers-andris-npm-n3-0-1-0-package.lock
+48 silly gunzTarPerm modes [ '755', '644' ]
+49 silly gunzTarPerm extractEntry package.json
+50 silly gunzTarPerm extractEntry .npmignore
+51 silly gunzTarPerm extractEntry README.md
+52 silly gunzTarPerm extractEntry messagestore.js
+53 silly gunzTarPerm extractEntry mime.js
+54 silly gunzTarPerm extractEntry n3.js
+55 silly gunzTarPerm extractEntry pop3_server.js
+56 silly gunzTarPerm extractEntry sasl.js
+57 silly gunzTarPerm extractEntry cert/certificate.pem
+58 silly gunzTarPerm extractEntry cert/privatekey.pem
+59 verbose read json /Users/andris/.npm/n3/0.1.0/package/package.json
+60 silly lockFile b0f47937-sers-andris-npm-n3-0-1-0-package /Users/andris/.npm/n3/0.1.0/package
+61 silly shasum updated bytes 14033
+62 info shasum b42df63c4b96274ebf9dca613426e4f0db876027
+62 info shasum /Users/andris/.npm/n3/0.1.0/package.tgz
+63 verbose from cache /Users/andris/.npm/n3/0.1.0/package/package.json
+64 verbose chmod /Users/andris/.npm/n3/0.1.0/package.tgz 644
+65 verbose chown /Users/andris/.npm/n3/0.1.0/package.tgz [ 501, 20 ]
+66 silly lockFile 3a52ce78- .
+67 silly publish { name: 'n3',
+67 silly publish   version: '0.1.0',
+67 silly publish   description: 'POP3 server for node.js',
+67 silly publish   main: 'n3.js',
+67 silly publish   scripts: { test: 'echo "Error: no test specified" && exit 1' },
+67 silly publish   repository: { type: 'git', url: 'git://github.com/andris9/n3.git' },
+67 silly publish   author: { name: 'Andris Reinman' },
+67 silly publish   license: 'MIT',
+67 silly publish   readmeFilename: 'README.md',
+67 silly publish   gitHead: 'af50865813bced47779ebce559d408cb4211c8c3',
+67 silly publish   dependencies: { iconv: '*', 'node-markdown': '*' },
+67 silly publish   readme: 'N3\n====\n\n**N3** is an experimental POP3 server for [node.js](http://nodejs.org). It doesn\'t actually fetch any real mail messages but is able to send arbitrary data in the form of e-mail messages to any POP3 enabled e-mail client. For example latest Twitter messages or blog posts etc.\n\nThe demo server (pop3_server.js) currently sends the same message with every request as a new message (with minor changes though). \n\nSecured connections\n----------\n\n**N3** supports both unencrypted connections on port 110. See pop3_server.js for examples.\n\nAuthentication\n--------------\n\n**N3** supports following authentication mechanisms:\n\n  * USER\n  * APOP\n  * AUTH PLAIN\n  * AUTH CRAM-MD5\n\nAuthentication system is extendable by allowing to add new methods to the *SASL AUTH* command.\n\nFor example to add a method *FOOBAR* (taken from *pop3_server.js*):\n\n    // AUTH FOOBAR user pass\n    N3.extendAUTH("FOOBAR",function(authObj){\n        var params = authObj.params.split(" "),\n            user = params[0],\n            pass = params[1];\n\n        if(!user) // username is not set\n            return "-ERR Authentication error. FOOBAR expects <user> <password>"\n\n        return authObj.check(user, pass);\n    });\n\nWhen the client asks for server capabilities with *CAPA*, the *SASL* response will be\n\n    CLIENT: CAPA\n    SERVER: ...\n    SERVER: SASL PLAIN CRAM-MD5 FOOBAR\n\nThe client is then able to log in with the method FOOBAR which expects username and password for its parameters\n\n    CLIENT: AUTH FOOBAR andris 12345\n    SERVER: +OK You are now logged in\n\nSee *sasl.js* for more complex examples - *PLAIN* and *CRAM-MD5* (*APOP* and *USER* are built in methods and do not go through the *SASL AUTH* interface).\n\nUsage\n-------\n\n1. Run *pop3_server.js* and add a POP3 account to your e-mail client pointing to the node.js server. With the demo script usernames don\'t matter, any name goes, but the password needs to be 12345\n\n       node pop3_server.js\n\nFor example, if you run *pop3_server.js* in *localhost* then the incoming settings should be something like:\n\n    protocol: pop3\n    server: localhost\n    port: 110\n    username: anything_goes\n    password: 12345\n    \nNB! Some clients (iPhone) require valid SMTP server in order to add a new account. You can use any valid SMTP server.\n\nLicense\n-------\n\nMIT. If you make any impromevents to the POP3 server code, then it would be nice to push the changes to here also (waiting for improvements to the protocol, new authentication methods etc.).\n\nNB\n-------\n\nMake sure that port 110 is open for incoming connections!\n',
+67 silly publish   _id: 'n3@0.1.0',
+67 silly publish   dist: { shasum: 'b42df63c4b96274ebf9dca613426e4f0db876027' } }
+68 verbose url raw n3
+69 verbose url resolving [ 'https://registry.npmjs.org/', './n3' ]
+70 verbose url resolved https://registry.npmjs.org/n3
+71 info trying registry request attempt 1 at 10:22:18
+72 http PUT https://registry.npmjs.org/n3
+73 http 409 https://registry.npmjs.org/n3
+74 verbose url raw n3
+75 verbose url resolving [ 'https://registry.npmjs.org/', './n3' ]
+76 verbose url resolved https://registry.npmjs.org/n3
+77 info trying registry request attempt 1 at 10:22:19
+78 http GET https://registry.npmjs.org/n3
+79 http 200 https://registry.npmjs.org/n3
+80 verbose url raw n3/0.1.0/-tag/latest
+81 verbose url resolving [ 'https://registry.npmjs.org/', './n3/0.1.0/-tag/latest' ]
+82 verbose url resolved https://registry.npmjs.org/n3/0.1.0/-tag/latest
+83 info trying registry request attempt 1 at 10:22:20
+84 http PUT https://registry.npmjs.org/n3/0.1.0/-tag/latest
+85 http 403 https://registry.npmjs.org/n3/0.1.0/-tag/latest
+86 error publish Error sending version data
+87 error Error: forbidden user: andris not authorized to modify n3
+87 error Changed: description "Notation3 (N3) and RDF library." -> "POP3 server for node.js"
+87 error Changed: dist-tags.latest "0.0.4" -> "0.1.0"
+87 error Added: versions.0.1.0
+87 error Changed: time.modified "2012-07-11T17:23:50.721Z" -> "2012-12-19T08:21:22.050Z"
+87 error Added: time.0.1.0
+87 error Changed: author.name "Ruben Verborgh" -> "Andris Reinman"
+87 error Deleted: author.email
+87 error Changed Type: author.email
+87 error Changed: author.email "ruben.verborgh@gmail.com" -> undefined
+87 error Changed: repository.url "git://github.com/RubenVerborgh/node-n3.git" -> "git://github.com/andris9/n3.git": n3/0.1.0/-tag/latest
+87 error     at RegClient.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:259:14)
+87 error     at Request.init.self.callback (/usr/local/lib/node_modules/npm/node_modules/request/main.js:120:22)
+87 error     at Request.EventEmitter.emit (events.js:99:17)
+87 error     at Request.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/request/main.js:648:16)
+87 error     at Request.EventEmitter.emit (events.js:126:20)
+87 error     at IncomingMessage.Request.start.self.req.self.httpModule.request.buffer (/usr/local/lib/node_modules/npm/node_modules/request/main.js:610:14)
+87 error     at IncomingMessage.EventEmitter.emit (events.js:126:20)
+87 error     at IncomingMessage._emitEnd (http.js:366:10)
+87 error     at HTTPParser.parserOnMessageComplete [as onMessageComplete] (http.js:149:23)
+87 error     at CleartextStream.socketOnData [as ondata] (http.js:1367:20)
+88 error If you need help, you may report this log at:
+88 error     <http://github.com/isaacs/npm/issues>
+88 error or email it to:
+88 error     <npm-@googlegroups.com>
+89 error System Darwin 12.2.0
+90 error command "/usr/local/bin/node" "/usr/local/bin/npm" "publish"
+91 error cwd /Users/andris/Projects/n3
+92 error node -v v0.8.16
+93 error npm -v 1.1.69
+94 verbose exit [ 1, true ]
