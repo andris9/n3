@@ -219,7 +219,7 @@ N3.POP3Server.prototype.response = function(message){
     if(typeof message == "string"){
         response = new Buffer(message + "\r\n", "utf-8");
     }else{
-        response = Buffer.concat(message, new Buffer("\r\n", "utf-8"));
+        response = Buffer.concat([message, new Buffer("\r\n", "utf-8")]);
     }
     
     console.log("SERVER: "+message);
