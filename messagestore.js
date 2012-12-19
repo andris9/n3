@@ -32,55 +32,55 @@ MessageStore.prototype.addMessage = function(message){
     this.size += message.size;
 };
 
-MessageStore.prototype.stat = function(){
-    return this.length+" "+this.size;
+MessageStore.prototype.stat = function(callback){
+    callback(null, this.length, this.size);
 }
 
-MessageStore.prototype.list = function(msg){
+MessageStore.prototype.list = function(msg, callback){
     var result = [];
     if(msg){
         if(isNaN(msg) || msg<1 || msg>this.messages.length || 
                                 this.messages[msg-1].deleteFlag)
-            return false;
+            callback(null, false);
         return msg+" "+this.messages[msg-1].size;
     }
     for(var i=0, len = this.messages.length;i<len;i++){
         if(!this.messages[i].deleteFlag)
             result.push((i+1)+" "+this.messages[i].size)
     }
-    return result;
+    callback(null, result);
 }
 
-MessageStore.prototype.uidl = function(msg){
+MessageStore.prototype.uidl = function(msg, callback){
     var result = [];
     if(msg){
         if(isNaN(msg) || msg<1 || msg>this.messages.length || 
                                 this.messages[msg-1].deleteFlag)
-            return false;
-        return msg+" "+this.messages[msg-1].uid;
+            callback(null, false);
+        callback(null, msg+" "+this.messages[msg-1].uid);
     }
     for(var i=0, len = this.messages.length;i<len;i++){
         if(!this.messages[i].deleteFlag)
             result.push((i+1)+" "+this.messages[i].uid)
     }
-    return result;
+    callback(null, result);
 }
 
-MessageStore.prototype.retr = function(msg){
+MessageStore.prototype.retr = function(msg, callback){
     if(!msg || isNaN(msg) || msg<1 || msg>this.messages.length || 
                                 this.messages[msg-1].deleteFlag)
-        return false;
-    return this.buildMimeMail(this.messages[msg-1]);
+        return callback(null, false);
+    return callback(null, this.buildMimeMail(this.messages[msg-1]));
 }
 
-MessageStore.prototype.dele = function(msg){
+MessageStore.prototype.dele = function(msg, callback){
     if(!msg || isNaN(msg) || msg<1 || msg>this.messages.length || 
                                 this.messages[msg-1].deleteFlag)
-        return false;
+        return callback(null, false);
     this.messages[msg-1].deleteFlag = true;
     this.length--;
     this.size -= this.messages[msg-1].size;
-    return true;
+    return callback(null, true);
 }
 
 MessageStore.prototype.rset = function(){

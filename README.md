@@ -8,7 +8,7 @@ The demo server (pop3_server.js) currently sends the same message with every req
 Secured connections
 ----------
 
-**N3** supports both unencrypted connections on port 110 and encrypted TLS connections on port 995. STARTTLS encryption support for port 110 is also supported. See pop3_server.js for examples.
+**N3** supports both unencrypted connections on port 110. See pop3_server.js for examples.
 
 Authentication
 --------------
@@ -52,17 +52,7 @@ See *sasl.js* for more complex examples - *PLAIN* and *CRAM-MD5* (*APOP* and *US
 Usage
 -------
 
-1. To use the server you need to create certificate files for TLS secure connections. Create privatekey.pem and certificate.pem with
-
-       openssl genrsa -out privatekey.pem 1024
-       openssl req -new -key privatekey.pem -out certrequest.csr
-       openssl x509 -req -in certrequest.csr -signkey privatekey.pem -out certificate.pem
-
-   There are already example certificate files in "/cert" for a kickstart installation but you should probably still genereate your own.
-
-2. Copy privatekey.pem and certificate.pem to "/cert" (overwrite the sample certificate files)
-
-3. Run *pop3_server.js* and add a POP3 account to your e-mail client pointing to the node.js server. With the demo script usernames don't matter, any name goes, but the password needs to be 12345
+1. Run *pop3_server.js* and add a POP3 account to your e-mail client pointing to the node.js server. With the demo script usernames don't matter, any name goes, but the password needs to be 12345
 
        node pop3_server.js
 
@@ -70,7 +60,7 @@ For example, if you run *pop3_server.js* in *localhost* then the incoming settin
 
     protocol: pop3
     server: localhost
-    port: 110 (or 995 for TLS)
+    port: 110
     username: anything_goes
     password: 12345
     
@@ -84,6 +74,4 @@ MIT. If you make any impromevents to the POP3 server code, then it would be nice
 NB
 -------
 
-*libssl-dev* package should be installed before building node.js from the source, otherwise crypto and thus TLS might not work
-
-Make sure that port 110 and 995 (-if secure connections are allowed) are open for incoming connections!
+Make sure that port 110 is open for incoming connections!

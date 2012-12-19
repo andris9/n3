@@ -1,15 +1,9 @@
 var N3 = require("./n3").N3,
     MessageStore = require("./messagestore").MessageStore,
 
-    server_name = "fw.node.ee",             // DOMAIN NAME OF THE SERVER
-    pkFilename  = "./cert/privatekey.pem",  // PATH TO PRIVATE KEY
-    crtFilename = "./cert/certificate.pem"; // PATH TO SERVER CERT
+    server_name = "fw.node.ee";
 
-
-// use markdown parser (if available) to generate the HTML message
-try{
-    var markdown = require("node-markdown").Markdown;
-}catch(E){markdown = function(str){return str.replace(/\n/g,"<br />\n");}}
+var markdown = require("node-markdown").Markdown;
 
 // runs after the user is successfully authenticated
 MessageStore.prototype.registerHook = function(){
@@ -57,11 +51,7 @@ function AuthStore(user, auth){
 // Setup servers for both port 110 (standard) and 995 (secure)
 
 // listen on standard port 110
-N3.startServer(110, server_name, AuthStore, MessageStore, pkFilename, crtFilename);
-
-// listen on secure port 995
-N3.startServer(995, server_name, AuthStore, MessageStore, pkFilename, crtFilename, true);
-
+N3.startServer(110, server_name, AuthStore, MessageStore);
 
 // Custom authentication method: FOOBAR <user> <pass>
 N3.extendAUTH("FOOBAR",function(authObj){

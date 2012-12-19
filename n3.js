@@ -1,8 +1,7 @@
 var net = require('net'), // Enables to start the server
-    crypto = require('crypto'), // TLS, STARTTLS, MD5
+    crypto = require('crypto'), // MD5
     fs = require("fs"), // Enables to load the certificate keys
     sasl_methods = require("./sasl").AUTHMethods; // Extensions to the SASL-AUTH
-
 
 /**
  * N3
@@ -10,14 +9,11 @@ var net = require('net'), // Enables to start the server
  * POP3 Server for Node.JS
  * 
  * Usage:
- *     N3.startServer(port, server_name, AuthStore, MessageStore[, pkFilename][, crtFilename][, useTLS]);
- *     - port (Number): Port nr to listen, 110 for unencrypted POP3 and 995 for TLS
+ *     N3.startServer(port, server_name, AuthStore, MessageStore);
+ *     - port (Number): Port nr to listen, 110 for unencrypted POP3
  *     - server_name (String): server domain name, ie. "node.ee"
  *     - AuthStore (Function): Function to authenticate users, see pop3_server.js for example
  *     - MessageStore (Constructor): See messagestore.js or pop3_server.js for example
- *     - pkFilename (String): Path to Private Key for SARTTLS and TLS
- *     - crtFilename (String): Path to server certificate for SARTTLS and TLS
- *     - useTLS (Boolean): use only secure TLS connections
  * 
  **/
 var N3 = {
@@ -63,13 +59,11 @@ var N3 = {
      * 
      * Prototype object for individual servers. Contains the items that will
      * be listed as an answer to the CAPA command. Individual server will add
-     * specific commands to the list by itself. For example if the server is
-     * useing insecure port 110 but supports STARTTLS then it might add STLS
-     * to the list. 
+     * specific commands to the list by itself.
      **/
     capabilities: {
         // AUTHENTICATION
-        1: ["UIDL", "USER", "RESP-CODES", "AUTH-RESP-CODE"], // Add SASL and STLS automatically
+        1: ["UIDL", "USER", "RESP-CODES", "AUTH-RESP-CODE"],
         // TRANSACTION
         2: ["UIDL", "EXPIRE NEVER", "LOGIN-DELAY 0", "IMPLEMENTATION N3 node.js POP3 server"],
         // UPDATE
@@ -92,54 +86,39 @@ var N3 = {
     connected_users:{},
     
     /**
-     * N3.startServer(port, server_name, AuthStore, MessageStore[, pkFilename][, crtFilename][, useTLS]) -> Boolean
-     * - port (Number): Port nr to listen, 110 for unencrypted POP3 and 995 for TLS
+     * N3.startServer(port, server_name, AuthStore, MessageStore) -> Boolean
+     * - port (Number): Port nr to listen, 110 for unencrypted POP3
      * - server_name (String): server domain name, ie. "node.ee"
      * - AuthStore (Function): Function to authenticate users, see pop3_server.js for example
      * - MessageStore (Constructor): See messagestore.js or pop3_server.js for example
-     * - pkFilename (String): Path to Private Key for SARTTLS and TLS
-     * - crtFilename (String): Path to server certificate for SARTTLS and TLS
-     * - useTLS (Boolean): use only secure TLS connections
      * 
-     * Creates a N3 server running on specified port. Return TRUE if the
-     * server was started successfully. If pkFilename and crtFilename is not given
-     * then STARTLS and TLS can't be used.
+     * Creates a N3 server running on specified port.
      **/
-    startServer: function(port, server_name, auth, MsgStore, pkFilename, crtFilename, useTLS){
-        
-        // If cert files are set, add support to TLS
-        // generate credentials for secure connections
-        var privateKey, certificate, credentials = false;
-        if(pkFilename && crtFilename){
-            privateKey = fs.readFileSync(pkFilename),
-            certificate = fs.readFileSync(crtFilename),
-            credentials = crypto.createCredentials({
-                key: privateKey.toString("ascii"),
-                cert: certificate.toString("ascii")
-            });
-        }
+    startServer: function(port, server_name, auth, MsgStore, callback){
         
         // try to start the server
-        try{
-            net.createServer(this.createInstance.bind(
-                    this, server_name, auth, MsgStore, credentials, useTLS)
-                ).listen(port);
-            console.log((useTLS?"Secure server":"Server")+" running on port "+port)
-            return true;
-        }catch(E){
-            // probably port is already in use
-            return false;
-        }
+        net.createServer(this.createInstance.bind(
+                this, server_name, auth, MsgStore)
+            ).listen(port, function(err){
+                if(err){
+                    console.log("Failed starting server");
+                    return callback(err);
+                }else{
+                    console.log("POP3 Server running on port "+port)
+                    return callback && callback(null);
+                }
+            });
+
     },
     
     /**
-     * N3.createInstance(server_name, auth, MsgStore, credentials, useTLS, socket) -> Object
+     * N3.createInstance(server_name, auth, MsgStore, socket) -> Object
      * 
      * Creates a dedicated server instance for every separate connection. Run by
      * net.createServer after a user tries to connect to the selected port.
      **/
-    createInstance: function(server_name, auth, MsgStore, credentials, useTLS, socket){
-        new this.POP3Server(socket, server_name, auth, MsgStore, credentials, useTLS);
+    createInstance: function(server_name, auth, MsgStore, socket){
+        new this.POP3Server(socket, server_name, auth, MsgStore);
     },
     
     /**
@@ -171,12 +150,12 @@ var N3 = {
 }
 
 /**
- * new n3.POP3Server(socket, server_name, auth, MsgStore, credentials, useTLS)
+ * new n3.POP3Server(socket, server_name, auth, MsgStore)
  * 
  * Creates a dedicated server instance for every separate connection. Run by
  * N3.createInstance after a user tries to connect to the selected port.
  **/
-N3.POP3Server = function(socket, server_name, auth, MsgStore, credentials, useTLS){
+N3.POP3Server = function(socket, server_name, auth, MsgStore){
     this.server_name = server_name || N3.server_name;
     this.socket   = socket;
     this.state    = N3.States.AUTHENTICATION;
@@ -184,7 +163,6 @@ N3.POP3Server = function(socket, server_name, auth, MsgStore, credentials, useTL
     this.UID      = this.connection_id + "." + (+new Date());
     this.authCallback = auth;
     this.MsgStore = MsgStore;
-    this.credentials = credentials;
     this.connection_secured = false;
 
     // Copy N3 capabilities info into the current object
@@ -193,25 +171,12 @@ N3.POP3Server = function(socket, server_name, auth, MsgStore, credentials, useTL
         2: Object.create(N3.capabilities[2]),
         3: Object.create(N3.capabilities[3])
     }
-
-    // announce STARTLS support
-    if(!useTLS && credentials){
-        this.capabilities[1].unshift("STLS");
-        this.capabilities[2].unshift("STLS");
-    }
-
-    if(useTLS && credentials)
-        socket.setSecure(credentials);
     
     console.log("New connection from "+socket.remoteAddress);
     this.response("+OK POP3 Server ready <"+this.UID+"@"+this.server_name+">");
     
     socket.on("data", this.onData.bind(this));
     socket.on("end", this.onEnd.bind(this));
-    socket.on("secure", (function(){
-        console.log("Secure connection successfully established")
-        this.connection_secured = true;
-    }).bind(this));
 }
  
 /**
@@ -242,13 +207,21 @@ N3.POP3Server.prototype.updateTimeout = function(){
         if(this.sate==N3.States.TRANSACTION)
             this.state = N3.States.UPDATE;
         console.log("Connection closed for client inactivity\n\n");
+        if(this.user && N3.connected_users[this.user.trim().toLowerCase()])
+            delete N3.connected_users[this.user.trim().toLowerCase()];
         this.socket.end();
         this.destroy();
     }).bind(this),10*60*1000); 
 }
 
 N3.POP3Server.prototype.response = function(message){
-    var response = new Buffer(message + "\r\n", "utf-8");
+    var response;
+    if(typeof message == "string"){
+        response = new Buffer(message + "\r\n", "utf-8");
+    }else{
+        response = Buffer.concat(message, new Buffer("\r\n", "utf-8"));
+    }
+    
     console.log("SERVER: "+message);
     this.socket.write(response);
 }
@@ -314,7 +287,13 @@ N3.POP3Server.prototype.onCommand = function(request){
 // Universal commands
     
 // CAPA - Reveals server capabilities to the client
-N3.POP3Server.prototype.cmdCAPA = function(){
+N3.POP3Server.prototype.cmdCAPA = function(params){
+
+    if(params && params.length){
+        return this.response("-ERR Try: CAPA");
+    }
+
+    params = (params || "").split(" ");
     this.response("+OK Capability list follows");
     for(var i=0;i<this.capabilities[this.state].length; i++){
         this.response(this.capabilities[this.state][i]);
@@ -340,16 +319,6 @@ N3.POP3Server.prototype.cmdQUIT = function(){
     this.response("+OK N3 POP3 Server signing off");
     this.socket.end();
 }
-
-// STLS - ENTER SECURE TLS MODE
-N3.POP3Server.prototype.cmdSTLS = function(){
-    if(!this.credentials) return this.response("-ERR Not implemented");
-    if(this.connconnection_secured) return this.response("-ERR TLS already established");
-    this.response("+OK Begin TLS negotiation now");
-    this.socket.setSecure(this.credentials);
-    console.log("Entered secure connection mode (TLS)")
-}
-
 
 // AUTHENTICATION commands
 
@@ -517,69 +486,96 @@ N3.POP3Server.prototype.cmdNOOP = function(){
 N3.POP3Server.prototype.cmdSTAT = function(){
     if(this.state!=N3.States.TRANSACTION) return this.response("-ERR Only allowed in transaction mode");
 
-    this.response("+OK "+this.messages.length+" "+this.messages.size);
+    this.messages.stat((function(err, length, size){
+        if(err){
+            this.response("-ERR STAT failed")
+        }else{
+            this.response("+OK "+length+" "+size);
+        }
+    }).bind(this));
+    
 }
 
 // LIST [msg] lists all messages
 N3.POP3Server.prototype.cmdLIST = function(msg){
     if(this.state!=N3.States.TRANSACTION) return this.response("-ERR Only allowed in transaction mode");
     
-    var list = this.messages.list(msg);
-    if(!list)
-        return this.response("-ERR Invalid message ID");
-    
-    if(typeof list == "string"){
-        this.response("+OK "+list);
-    }else{
-        this.response("+OK");
-        for(var i=0;i<list.length;i++){
-            this.response(list[i]);
+    this.messages.list(msg, (function(err, list){
+        if(err){
+            return this.response("-ERR LIST command failed")
         }
-        this.response(".");
-    }
+        if(!list)
+            return this.response("-ERR Invalid message ID");
+        
+        if(typeof list == "string"){
+            this.response("+OK "+list);
+        }else{
+            this.response("+OK");
+            for(var i=0;i<list.length;i++){
+                this.response(list[i]);
+            }
+            this.response(".");
+        }
+    }).bind(this));
 }
 
 // UIDL - lists unique identifiers for stored messages
 N3.POP3Server.prototype.cmdUIDL = function(msg){
     if(this.state!=N3.States.TRANSACTION) return this.response("-ERR Only allowed in transaction mode");
     
-    var list = this.messages.uidl(msg);
-    if(!list)
-        return this.response("-ERR Invalid message ID");
-    
-    if(typeof list == "string"){
-        this.response("+OK "+list);
-    }else{
-        this.response("+OK");
-        for(var i=0;i<list.length;i++){
-            this.response(list[i]);
+    this.messages.uidl(msg, (function(err, list){
+        if(err){
+            return this.response("-ERR UIDL command failed")
         }
-        this.response(".");
-    }
+
+        if(!list)
+            return this.response("-ERR Invalid message ID");
+        
+        if(typeof list == "string"){
+            this.response("+OK "+list);
+        }else{
+            this.response("+OK");
+            for(var i=0;i<list.length;i++){
+                this.response(list[i]);
+            }
+            this.response(".");
+        }
+    }).bind(this));
 }
 
 // RETR msg - outputs a selected message
 N3.POP3Server.prototype.cmdRETR = function(msg){
     if(this.state!=N3.States.TRANSACTION) return this.response("-ERR Only allowed in transaction mode");
     
-    var message;
-    if(message = this.messages.retr(msg)){
+    this.messages.retr(msg, (function(err, message){
+        if(err){
+            return this.response("-ERR RETR command failed")
+        }
+        if(!message){
+            return this.response("-ERR Invalid message ID");
+        }
         this.response("+OK "+message.length+" octets");
         this.response(message);
         this.response(".");
-    }else
-        return this.response("-ERR Invalid message ID");
-    
+    }).bind(this));
+
 }
 
 // DELE msg - marks selected message for deletion
 N3.POP3Server.prototype.cmdDELE = function(msg){
     if(this.state!=N3.States.TRANSACTION) return this.response("-ERR Only allowed in transaction mode");
     
-    if(!this.messages.dele(msg))
-        return this.response("-ERR Invalid message ID");
-    
-    this.response("+OK msg deleted");
+    this.messages.dele(msg, (function(err, success){
+        if(err){
+            return this.response("-ERR RETR command failed")
+        }
+        if(!success){
+            return this.response("-ERR Invalid message ID");
+        }else{
+            this.response("+OK msg deleted");
+        }
+    }).bind(this));
+
 }
 
 // RSET - resets DELE'ted message flags
